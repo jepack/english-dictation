@@ -1,0 +1,89 @@
+{
+  "version": 1,
+  "siteTitle": "英语听写站",
+  "siteSubtitle": "手机点控 · 可加题 · 可复习",
+  "dictations": [
+    {
+      "id": "g3-family-ing-2026-10-08",
+      "title": "三年级 · 家庭与 ing",
+      "grade": "三年级",
+      "date": "2026-10-08",
+      "tags": ["句子", "动词ing", "家庭"],
+      "note": "每题英文读两遍；默认写完点「下一个」。",
+      "items": [
+        {
+          "section": "句子",
+          "promptZh": "第一题",
+          "text": "This is my father.",
+          "answer": "This is my father."
+        },
+        {
+          "section": "句子",
+          "promptZh": "第二题",
+          "text": "What is he doing?",
+          "answer": "What is he doing?"
+        },
+        {
+          "section": "句子",
+          "promptZh": "第三题",
+          "text": "He is making a plane.",
+          "answer": "He is making a plane."
+        },
+        {
+          "section": "句子",
+          "promptZh": "第四题",
+          "text": "These are my sisters.",
+          "answer": "These are my sisters."
+        },
+        {
+          "section": "句子",
+          "promptZh": "第五题",
+          "text": "What are they doing?",
+          "answer": "What are they doing?"
+        },
+        {
+          "section": "句子",
+          "promptZh": "第六题",
+          "text": "They are dancing.",
+          "answer": "They are dancing."
+        },
+        {
+          "section": "动词变形",
+          "promptZh": "第一题",
+          "text": "cook. cooking.",
+          "answer": "cook → cooking"
+        },
+        {
+          "section": "动词变形",
+          "promptZh": "第二题",
+          "text": "play. playing football.",
+          "answer": "play → playing football"
+        },
+        {
+          "section": "动词变形",
+          "promptZh": "第三题",
+          "text": "watch. watching TV.",
+          "answer": "watch → watching TV"
+        },
+        {
+          "section": "动词变形",
+          "promptZh": "第四题",
+          "text": "make. making a plane.",
+          "answer": "make → making a plane"
+        },
+        {
+          "section": "动词变形",
+          "promptZh": "第五题",
+          "text": "ride. riding a bicycle.",
+          "answer": "ride → riding a bicycle"
+        },
+        {
+          "section": "动词变形",
+          "promptZh": "第六题",
+          "text": "dance. dancing.",
+          "answer": "dance → dancing"
+        }
+      ]
+    }
+  ]
+}

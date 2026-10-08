@@ -1,0 +1,105 @@
+<!DOCTYPE html>
+<html lang="zh-CN">
+<head>
+  <meta charset="UTF-8" />
+  <meta name="viewport" content="width=device-width, initial-scale=1, viewport-fit=cover" />
+  <meta name="apple-mobile-web-app-capable" content="yes" />
+  <meta name="mobile-web-app-capable" content="yes" />
+  <title>英语听写站</title>
+  <link rel="stylesheet" href="./css/styles.css" />
+</head>
+<body>
+  <div class="wrap">
+    <header class="app-header">
+      <h1 id="site-title">英语听写站</h1>
+      <p id="site-sub">手机点控 · 可加题 · 可复习</p>
+      <div class="nav-tabs" role="tablist">
+        <button type="button" data-view="home" class="active">听写</button>
+        <button type="button" data-view="review">复习</button>
+      </div>
+    </header>
+
+    <!-- 首页：听写列表 -->
+    <section id="view-home">
+      <div id="card-list" class="card-list"></div>
+      <p class="footer-note">
+        以后新听写只需往 <code>data/dictations.json</code> 加一套题，刷新网站即可出现。
+        手机把本站加到主屏幕更方便。
+      </p>
+    </section>
+
+    <!-- 播放页 -->
+    <section id="view-play" hidden>
+      <a class="back" href="#/">← 返回列表</a>
+      <h2 id="play-title" style="margin:0 0 8px;font-size:1.25rem;"></h2>
+
+      <div class="panel">
+        <div class="row">
+          <label class="chip">
+            <input type="radio" name="mode" value="manual" checked />
+            点一下下一个
+          </label>
+          <label class="chip">
+            <input type="radio" name="mode" value="byLength" />
+            按长度自动等
+          </label>
+          <label class="chip">
+            <input type="checkbox" id="showText" />
+            屏幕显示英文
+          </label>
+        </div>
+
+        <div class="stage" aria-live="polite">
+          <div class="badge" id="badge">准备就绪</div>
+          <p class="prompt" id="prompt">点「开始听写」</p>
+          <p class="big" id="display">Ready?</p>
+        </div>
+
+        <div class="progress"><i id="bar"></i></div>
+        <div class="meta-line">
+          <span id="count">0 / 0</span>
+          <span id="modeHint">手动点控</span>
+        </div>
+
+        <div class="controls">
+          <button class="btn btn-start" id="btnStart" type="button">开始听写</button>
+          <button class="btn btn-next" id="btnNext" type="button" disabled>下一个</button>
+          <button class="btn btn-replay" id="btnReplay" type="button" disabled>再读一遍</button>
+          <button class="btn btn-stop" id="btnStop" type="button" disabled>停止</button>
+        </div>
+
+        <div class="controls" style="grid-template-columns:1fr 1fr;margin-top:10px;">
+          <button class="btn btn-stop" id="btnWrong" type="button" disabled>不会 / 错了</button>
+          <button class="btn btn-replay" id="btnOk" type="button" disabled>会了 / 对了</button>
+        </div>
+
+        <p class="hint" id="hint">手机用 Safari 或 Chrome 打开本站链接即可控制。</p>
+      </div>
+
+      <details class="answers" id="answersBox">
+        <summary>答案（写完再打开核对）</summary>
+        <ol id="answerList"></ol>
+      </details>
+    </section>
+
+    <!-- 复习 -->
+    <section id="view-review" hidden>
+      <div class="panel">
+        <p id="review-stats" class="hint" style="margin-top:0;"></p>
+        <div class="controls" style="grid-template-columns:1fr;">
+          <button class="btn btn-start" id="btnReviewAll" type="button">复习全部题目</button>
+          <button class="btn btn-next" id="btnReviewWrong" type="button">只复习错题本</button>
+          <button class="btn btn-replay" id="btnClearWrong" type="button">清空错题本</button>
+        </div>
+        <p class="hint" id="review-empty" hidden></p>
+        <p class="hint">
+          听写过程中点「不会/错了」会记入本机错题本；点「会了/对了」可移除。
+          错题保存在你手机浏览器本地，换手机不会同步。
+        </p>
+      </div>
+    </section>
+  </div>
+
+  <script src="./js/app.js"></script>
+</body>
+</html>
