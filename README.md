@@ -10,7 +10,7 @@
 3. 默认：写完点「下一个」（节奏你控制）
 4. 可选标记「不会/错了」进错题本，之后在「复习」里再练
 
-建议用 **Safari / Chrome**，可「添加到主屏幕」。
+用 **音频文件 / 在线 TTS** 播放，不依赖系统 `speechSynthesis`，飞书内置浏览器一般也能听。可「添加到主屏幕」。
 
 ## 怎么加新听写
 
@@ -35,10 +35,11 @@
 }
 ```
 
-然后：
+然后生成音频并推送：
 
 ```bash
-git add data/dictations.json
+python3 scripts/generate_audio.py
+git add data/dictations.json audio
 git commit -m "Add dictation: g3-xxx"
 git push
 ```

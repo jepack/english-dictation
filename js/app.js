@@ -1,8 +1,10 @@
 (() => {
   const DATA_URL = "./data/dictations.json";
+  const MANIFEST_URL = "./audio/manifest.json";
 
   const state = {
     data: null,
+    audioManifest: {},
     view: "home", // home | play | review
     currentId: null,
     items: [],
@@ -11,6 +13,7 @@
     waitingNext: false,
     autoTimer: null,
     reviewWrongOnly: false,
+    currentAudio: null,
   };
 
   const $ = (id) => document.getElementById(id);
@@ -28,7 +31,37 @@
     return Math.min(28, Math.max(8, Math.round(sec)));
   }
 
+  function langKey(lang) {
+    return String(lang || "en").toLowerCase().startsWith("zh") ? "zh" : "en";
+  }
+
+  function manifestPath(text, lang) {
+    const k = `${langKey(lang)}|${text}`;
+    return state.audioManifest[k] || null;
+  }
+
+  function onlineTtsUrl(text, lang) {
+    const q = encodeURIComponent(text);
+    if (langKey(lang) === "zh") {
+      return `https://fanyi.baidu.com/gettts?lan=zh&text=${q}&spd=5&source=web`;
+    }
+    // 有道词典语音：各端 WebView 一般都能用 <audio> 播
+    return `https://dict.youdao.com/dictvoice?audio=${q}&type=2`;
+  }
+
   function stopSpeech() {
+    if (state.currentAudio) {
+      try {
+        state.currentAudio.onended = null;
+        state.currentAudio.onerror = null;
+        state.currentAudio.pause();
+        state.currentAudio.removeAttribute("src");
+        state.currentAudio.load();
+      } catch {
+        /* ignore */
+      }
+      state.currentAudio = null;
+    }
     if ("speechSynthesis" in window) window.speechSynthesis.cancel();
   }
 
@@ -43,44 +76,62 @@
     return new Promise((r) => setTimeout(r, ms));
   }
 
-  function pickVoice(langPrefix) {
-    const voices = window.speechSynthesis.getVoices();
-    const prefer = [
-      "Samantha",
-      "Karen",
-      "Daniel",
-      "Google US English",
-      "Microsoft Aria",
-      "Tingting",
-      "Ting-Ting",
-      "Google 普通话",
-      "Mei-Jia",
-    ];
-    const langMatches = voices.filter(
-      (v) => v.lang && v.lang.toLowerCase().startsWith(langPrefix)
-    );
-    for (const name of prefer) {
-      const hit = langMatches.find((v) => v.name.includes(name));
-      if (hit) return hit;
-    }
-    return langMatches[0] || null;
+  function playAudioUrl(url) {
+    return new Promise((resolve) => {
+      const audio = new Audio();
+      state.currentAudio = audio;
+      let settled = false;
+      const done = (ok) => {
+        if (settled) return;
+        settled = true;
+        if (state.currentAudio === audio) state.currentAudio = null;
+        resolve(ok);
+      };
+      audio.preload = "auto";
+      audio.onended = () => done(true);
+      audio.onerror = () => done(false);
+      audio.src = url;
+      const p = audio.play();
+      if (p && typeof p.then === "function") {
+        p.catch(() => done(false));
+      }
+    });
   }
 
-  function speak(text, lang) {
+  function speakViaSynthesis(text, lang) {
     return new Promise((resolve) => {
       if (!("speechSynthesis" in window)) {
-        resolve();
+        resolve(false);
         return;
       }
       const u = new SpeechSynthesisUtterance(text);
       u.lang = lang;
-      u.rate = lang.startsWith("zh") ? 0.95 : 0.88;
-      const voice = pickVoice(lang.slice(0, 2).toLowerCase());
-      if (voice) u.voice = voice;
-      u.onend = () => resolve();
-      u.onerror = () => resolve();
+      u.rate = langKey(lang) === "zh" ? 0.95 : 0.88;
+      const voices = window.speechSynthesis.getVoices();
+      const prefix = langKey(lang);
+      const hit = voices.find((v) => v.lang && v.lang.toLowerCase().startsWith(prefix));
+      if (hit) u.voice = hit;
+      u.onend = () => resolve(true);
+      u.onerror = () => resolve(false);
       window.speechSynthesis.speak(u);
     });
+  }
+
+  /** 任意浏览器：本地 mp3 → 在线 TTS 音频 → speechSynthesis（可选） */
+  async function speak(text, lang) {
+    const t = String(text || "").trim();
+    if (!t) return;
+
+    const local = manifestPath(t, lang);
+    if (local) {
+      const ok = await playAudioUrl(local);
+      if (ok) return;
+    }
+
+    const okOnline = await playAudioUrl(onlineTtsUrl(t, lang));
+    if (okOnline) return;
+
+    await speakViaSynthesis(t, lang);
   }
 
   function getDictation(id) {
@@ -217,15 +268,15 @@
     $("btnOk").disabled = true;
 
     showItem(false);
-    $("prompt").textContent = "正在朗读…请听";
+    const zhHint = item.promptZh || `第${state.index + 1}题`;
+    $("prompt").textContent = "正在播放…请听";
 
-    // 换 section 时轻提示
     const prev = state.items[state.index - 1];
     if (state.index === 0 || (prev && prev.section !== item.section)) {
       await speak(`${item.section || "听写"}开始。`, "zh-CN");
     }
 
-    await speak(item.promptZh || `第${state.index + 1}题`, "zh-CN");
+    await speak(zhHint, "zh-CN");
     await waitMs(300);
     await speak(item.text, "en-US");
     await waitMs(650);
@@ -256,15 +307,12 @@
   }
 
   async function startPlay() {
-    if (!("speechSynthesis" in window)) {
-      $("prompt").textContent = "当前浏览器不支持朗读，请用 Safari / Chrome。";
-      return;
-    }
     stopSpeech();
     clearAuto();
     state.running = true;
     state.index = 0;
     $("btnStart").textContent = "重新开始";
+    $("hint").textContent = "播放中…调大音量。";
     await playCurrent();
   }
 
@@ -338,7 +386,7 @@
     $("btnStop").disabled = true;
     $("btnWrong").disabled = true;
     $("btnOk").disabled = true;
-    $("hint").textContent = "建议 Safari / Chrome 打开，调大音量后开始。";
+    $("hint").textContent = "飞书 / Safari / Chrome 均可；用音频播放，调大音量后开始。";
     fillAnswers();
     $("answersBox").open = false;
   }
@@ -458,8 +506,14 @@
 
   async function init() {
     bind();
-    const res = await fetch(DATA_URL);
-    state.data = await res.json();
+    const [dataRes, manRes] = await Promise.all([
+      fetch(DATA_URL),
+      fetch(MANIFEST_URL).catch(() => null),
+    ]);
+    state.data = await dataRes.json();
+    if (manRes && manRes.ok) {
+      state.audioManifest = await manRes.json();
+    }
     $("site-title").textContent = state.data.siteTitle || "英语听写站";
     $("site-sub").textContent = state.data.siteSubtitle || "";
     route();
