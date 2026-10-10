@@ -14,37 +14,24 @@
 
 ## 怎么加新听写
 
-编辑 `data/dictations.json`，在 `dictations` 数组里追加一套，例如：
-
-```json
-{
-  "id": "g3-xxx-2026-10-09",
-  "title": "三年级 · 新主题",
-  "grade": "三年级",
-  "date": "2026-10-09",
-  "tags": ["句子"],
-  "note": "写完点下一个",
-  "items": [
-    {
-      "section": "句子",
-      "promptZh": "第一题",
-      "text": "This is a cat.",
-      "answer": "This is a cat."
-    }
-  ]
-}
-```
-
-然后生成音频并推送：
+推荐一键（文本题单 → JSON + mp3）：
 
 ```bash
-python3 scripts/generate_audio.py
+# 题目格式见 examples/sample-items.txt
+python3 scripts/add_dictation.py \
+  --id g3-xxx-2026-10-09 \
+  --title "三年级 · 新主题" \
+  --tags 句子 \
+  --from-lines items.txt \
+  --generate-audio
+
 git add data/dictations.json audio
 git commit -m "Add dictation: g3-xxx"
-git push
+GIT_HTTP_VERSION=1.1 git push origin main
 ```
 
-一两分钟后手机刷新网站即可看到。
+也可手改 `data/dictations.json` 后只跑 `python3 scripts/generate_audio.py`。  
+细节见 [ADDING.md](ADDING.md)。一两分钟后手机刷新即可。
 
 ## 本地预览
 

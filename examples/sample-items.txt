@@ -1,0 +1,8 @@
+# 句子
+This is my cat.
+What is she doing?
+She is reading a book.
+
+# 动词变形
+cook. cooking.|cook → cooking
+play. playing.|play → playing
