@@ -182,18 +182,100 @@
       tipBox.hidden = true;
     }
 
-    const corr = latestCorrection(item);
+    const list = item.corrections || [];
+    const corr = list.length ? list[list.length - 1] : null;
     const fixBox = $("fixBox");
+    const hist = $("fixHistory");
     if (corr && corr.coach) {
       fixBox.hidden = false;
       $("fixText").textContent = corr.coach;
+      if (list.length > 1) {
+        hist.hidden = false;
+        hist.innerHTML = list
+          .slice(0, -1)
+          .reverse()
+          .map(
+            (c, i) =>
+              `<div class="hist-item"><strong>更早 #${list.length - 1 - i}</strong>（${escapeHtml(
+                c.at || ""
+              )}）${escapeHtml(c.coach || "")}</div>`
+          )
+          .join("");
+      } else {
+        hist.hidden = true;
+        hist.innerHTML = "";
+      }
     } else {
       fixBox.hidden = true;
       $("fixText").textContent = "";
+      hist.hidden = true;
+      hist.innerHTML = "";
     }
 
+    renderOutline();
     setPhase("准备就绪");
     syncButtons();
+  }
+
+  function renderOutline() {
+    const ol = $("outlineList");
+    if (!ol) return;
+    ol.innerHTML = state.items
+      .map((it, i) => {
+        const hasFix = (it.corrections || []).length > 0;
+        const cls = [
+          i === state.index ? "active" : "",
+          hasFix ? "has-fix" : "",
+        ]
+          .filter(Boolean)
+          .join(" ");
+        const mark = hasFix ? `<span class="mark">纠</span>` : "";
+        return `<li><button type="button" data-idx="${i}" class="${cls}">${
+          i + 1
+        }. ${escapeHtml(it.text || "")}${mark}</button></li>`;
+      })
+      .join("");
+    ol.querySelectorAll("button[data-idx]").forEach((btn) => {
+      btn.addEventListener("click", () => {
+        const i = Number(btn.getAttribute("data-idx"));
+        if (Number.isNaN(i)) return;
+        stopSpeech();
+        state.index = i;
+        renderItem();
+      });
+    });
+
+    const box = $("fixSummaryBox");
+    const ul = $("fixSummaryList");
+    const fixes = [];
+    state.items.forEach((it, i) => {
+      const c = latestCorrection(it);
+      if (c && c.coach) {
+        fixes.push({ i, text: it.text, coach: c.coach, issues: c.issues || [] });
+      }
+    });
+    if (!fixes.length) {
+      box.hidden = true;
+      ul.innerHTML = "";
+      return;
+    }
+    box.hidden = false;
+    ul.innerHTML = fixes
+      .map(
+        (f) =>
+          `<li><button type="button" data-jump="${f.i}">${escapeHtml(
+            f.text
+          )}</button>：${escapeHtml(f.coach)}</li>`
+      )
+      .join("");
+    ul.querySelectorAll("button[data-jump]").forEach((btn) => {
+      btn.addEventListener("click", () => {
+        const i = Number(btn.getAttribute("data-jump"));
+        stopSpeech();
+        state.index = i;
+        renderItem();
+      });
+    });
   }
 
   function syncButtons() {
@@ -311,6 +393,7 @@
     $("play-title").textContent = lesson.title || id;
     $("play-note").textContent = lesson.note || "";
     $("site-title").textContent = state.data.siteTitle || "英语点读";
+    renderOutline();
     renderItem();
   }
 

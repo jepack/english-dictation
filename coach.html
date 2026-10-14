@@ -31,6 +31,16 @@
       <h2 id="play-title" style="margin:0 0 8px;font-size:1.25rem;"></h2>
       <p class="hint" id="play-note" style="margin-top:0;"></p>
 
+      <details class="outline-box" id="outlineBox" open>
+        <summary>完整点读目录（点条目跳转）</summary>
+        <ol id="outlineList" class="outline-list"></ol>
+      </details>
+
+      <details class="fix-summary-box" id="fixSummaryBox" hidden>
+        <summary>本次纠音汇总</summary>
+        <ul id="fixSummaryList" class="fix-summary-list"></ul>
+      </details>
+
       <div class="panel">
         <div class="stage" aria-live="polite">
           <div class="badge" id="badge">准备就绪</div>
@@ -47,8 +57,9 @@
         </div>
 
         <div class="fix-box" id="fixBox" hidden>
-          <div class="fix-title">要纠正</div>
+          <div class="fix-title">要纠正（最新）</div>
           <p id="fixText"></p>
+          <div id="fixHistory" class="fix-history" hidden></div>
         </div>
 
         <div class="progress"><i id="bar"></i></div>

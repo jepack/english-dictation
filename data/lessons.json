@@ -1,24 +1,396 @@
 {
   "version": 1,
   "siteTitle": "英语点读",
-  "siteSubtitle": "飞书建课 · 慢读拆分快读 · 视频纠音",
+  "siteSubtitle": "视频抽帧建课 · 完整点读 · 纠音重练",
   "lessons": [
+    {
+      "id": "g3-home-video-2026-10-14",
+      "title": "Learn to Read · Dad's home video",
+      "grade": "三年级",
+      "date": "2026-10-14",
+      "tags": ["课文", "现在进行时", "视频纠音"],
+      "note": "完整点读：按课本指读顺序。橙色=需纠正。练法：慢读 → 拆分×2 → 快读。",
+      "sourceNote": "视频抽帧还原 · Who is in Dad's home video? (p.27)",
+      "items": [
+        {
+          "id": "s1",
+          "kind": "sentence",
+          "text": "What are you doing, Dad?",
+          "syllables": ["What", "are", "you", "doing", "Dad"],
+          "stressNote": "doing / Dad 略重",
+          "tipsZh": "doing：do + ing，/ˈduːɪŋ/",
+          "grammarZh": "What are you doing? 现在进行时问句",
+          "corrections": []
+        },
+        {
+          "id": "s2",
+          "kind": "sentence",
+          "text": "I am making a video.",
+          "syllables": ["I", "am", "making", "a", "video"],
+          "stressNote": "making / VI-de-o",
+          "tipsZh": "video：重音在第一拍 VI-de-o /ˈvɪdiəʊ/",
+          "grammarZh": "I am + V-ing",
+          "corrections": [
+            {
+              "at": "2026-10-14",
+              "issues": ["video 音节含糊"],
+              "coach": "慢一点：video。重音在第一拍：VI-de-o。拆：vi / de / o → video。不要读成「威抖」。再快读整句。"
+            }
+          ]
+        },
+        {
+          "id": "s3",
+          "kind": "sentence",
+          "text": "Here is Grandma. She is singing.",
+          "syllables": ["Here", "is", "Grandma", "She", "is", "singing"],
+          "stressNote": "Grandma / SING-ing",
+          "tipsZh": "singing：课本是 singing（唱歌），不是 sitting。sing+/ɪŋ/",
+          "grammarZh": "She is + V-ing",
+          "corrections": [
+            {
+              "at": "2026-10-14",
+              "issues": ["易与 sitting 混淆"],
+              "coach": "慢一点：singing。注意是 sing（唱歌）+ing，不是 sit。拆：sing / ing → singing。跟读两遍再接整句。"
+            }
+          ]
+        },
+        {
+          "id": "s4",
+          "kind": "sentence",
+          "text": "Here are Mum and Cherry. They are in the kitchen. They are cooking.",
+          "syllables": ["Here", "are", "Mum", "and", "Cherry", "They", "are", "in", "the", "kitchen", "They", "are", "cooking"],
+          "stressNote": "Mum / Cherry / KITCHen / COOKing",
+          "tipsZh": "kitchen：重音 KIT-chen；cooking：cook+/ɪŋ/",
+          "grammarZh": "Here are + 复数；They are + V-ing",
+          "corrections": [
+            {
+              "at": "2026-10-14",
+              "issues": ["kitchen 重音、cooking 尾音"],
+              "coach": "慢一点：kitchen。重音在前：KIT-chen。再：cooking = cook + ing。拆：kit / chen · cook / ing。整句慢读一次。"
+            }
+          ]
+        },
+        {
+          "id": "s5",
+          "kind": "sentence",
+          "text": "Yes, and I am eating.",
+          "syllables": ["Yes", "and", "I", "am", "eating"],
+          "stressNote": "EATing",
+          "tipsZh": "eating：eat+/ɪŋ/",
+          "grammarZh": "",
+          "corrections": []
+        },
+        {
+          "id": "s6",
+          "kind": "sentence",
+          "text": "That is Grandpa. He is in the living room. He is watching TV.",
+          "syllables": ["That", "is", "Grandpa", "He", "is", "in", "the", "living", "room", "He", "is", "watching", "TV"],
+          "stressNote": "LIV-ing room / WATCH-ing",
+          "tipsZh": "living room：两个词，living 重音在 LIV；watching：/ˈwɒtʃɪŋ/，ch 发 /tʃ/",
+          "grammarZh": "He is + 地点 / He is + V-ing",
+          "corrections": [
+            {
+              "at": "2026-10-14",
+              "issues": ["living room 连读含糊", "watching 易读成 watch-ing 分离不当"],
+              "coach": "慢一点：living room。拆：liv / ing · room。再：watching → watch / ing，ch=/tʃ/。整句：He is watching TV。"
+            }
+          ]
+        },
+        {
+          "id": "s7",
+          "kind": "sentence",
+          "text": "Go away. I can't see.",
+          "syllables": ["Go", "away", "I", "can't", "see"],
+          "stressNote": "a-WAY / can't / see",
+          "tipsZh": "can't：/kɑːnt/（英）或 /kænt/（美）",
+          "grammarZh": "can/can't + 动词原形 see",
+          "corrections": []
+        },
+        {
+          "id": "s8",
+          "kind": "sentence",
+          "text": "I can't see Dad in the video. Let's find him.",
+          "syllables": ["I", "can't", "see", "Dad", "in", "the", "video", "Let's", "find", "him"],
+          "stressNote": "can't / Dad / video / FIND / him",
+          "tipsZh": "find him：him 弱读 /hɪm/；Let's = Let us",
+          "grammarZh": "主格 he → 宾格 him（找的是他）",
+          "corrections": [
+            {
+              "at": "2026-10-14",
+              "issues": ["him 与 he 混淆", "find 尾音"],
+              "coach": "慢一点：find him。he（主格）→ him（宾格）。拆：find / him。不要说 find he。再快读整句。"
+            }
+          ]
+        },
+        {
+          "id": "s9",
+          "kind": "sentence",
+          "text": "There he is! He is in the garden. He is sleeping.",
+          "syllables": ["There", "he", "is", "He", "is", "in", "the", "garden", "He", "is", "sleeping"],
+          "stressNote": "There / GARden / SLEEPing",
+          "tipsZh": "garden：重音 GAR-den；sleeping：sleep+/ɪŋ/",
+          "grammarZh": "There he is! 他在那儿！",
+          "corrections": [
+            {
+              "at": "2026-10-14",
+              "issues": ["garden 重音"],
+              "coach": "慢一点：garden。重音在前：GAR-den。拆：gar / den → garden。再：sleep / ing → sleeping。整句跟读。"
+            }
+          ]
+        },
+        {
+          "id": "s10",
+          "kind": "word",
+          "text": "watch",
+          "syllables": ["watch"],
+          "stressNote": "单音节 /wɒtʃ/",
+          "tipsZh": "Phonics w/wh：watch 的 a 短，ch=/tʃ/",
+          "grammarZh": "",
+          "corrections": []
+        },
+        {
+          "id": "s11",
+          "kind": "word",
+          "text": "what",
+          "syllables": ["what"],
+          "stressNote": "单音节 /wɒt/",
+          "tipsZh": "wh 常发 /w/；what 与 watch 对比练",
+          "grammarZh": "",
+          "corrections": []
+        }
+      ]
+    },
+    {
+      "id": "g3-r-controlled-2026-10-14",
+      "title": "Phonics · R-Controlled Vowels (Unit 4–6)",
+      "grade": "三年级",
+      "date": "2026-10-14",
+      "tags": ["自然拼读", "R控制元音", "视频抽帧"],
+      "note": "按指读路径：Unit4 or → Unit5 er/ir/ur → Unit6 弱读 /ə/。橙色条为纠正重点。",
+      "sourceNote": "视频抽帧还原课本 Unit 4–6",
+      "items": [
+        {
+          "id": "w1",
+          "kind": "word",
+          "text": "fork",
+          "syllables": ["fork"],
+          "stressNote": "or=/ɔː/",
+          "tipsZh": "or 控制：f-or-k → /fɔːk/",
+          "grammarZh": "",
+          "corrections": []
+        },
+        {
+          "id": "w2",
+          "kind": "word",
+          "text": "cord",
+          "syllables": ["cord"],
+          "stressNote": "or=/ɔː/",
+          "tipsZh": "c-or-d → /kɔːd/",
+          "grammarZh": "",
+          "corrections": []
+        },
+        {
+          "id": "w3",
+          "kind": "word",
+          "text": "corn",
+          "syllables": ["corn"],
+          "stressNote": "or=/ɔː/",
+          "tipsZh": "c-or-n → /kɔːn/",
+          "grammarZh": "",
+          "corrections": []
+        },
+        {
+          "id": "w4",
+          "kind": "word",
+          "text": "serve",
+          "syllables": ["serve"],
+          "stressNote": "er=/ɜː/",
+          "tipsZh": "er 重读：/sɜːv/，不要发成「色无」",
+          "grammarZh": "",
+          "corrections": [
+            {
+              "at": "2026-10-14",
+              "issues": ["er 发成 /e/"],
+              "coach": "慢一点：serve。er 发 /ɜː/（类似「厄」拉长）。拆：s / erve → serve。再快读。"
+            }
+          ]
+        },
+        {
+          "id": "w5",
+          "kind": "word",
+          "text": "shirt",
+          "syllables": ["shirt"],
+          "stressNote": "ir=/ɜː/",
+          "tipsZh": "ir 同 /ɜː/：sh-ir-t → /ʃɜːt/",
+          "grammarZh": "",
+          "corrections": [
+            {
+              "at": "2026-10-14",
+              "issues": ["ir 读成 /ɪ/"],
+              "coach": "慢一点：shirt。ir=/ɜː/，不是 short 的 or。拆：sh / ir / t → shirt。"
+            }
+          ]
+        },
+        {
+          "id": "w6",
+          "kind": "word",
+          "text": "nurse",
+          "syllables": ["nurse"],
+          "stressNote": "ur=/ɜː/",
+          "tipsZh": "ur 同 /ɜː/：n-ur-se → /nɜːs/",
+          "grammarZh": "",
+          "corrections": [
+            {
+              "at": "2026-10-14",
+              "issues": ["ur 发不准"],
+              "coach": "慢一点：nurse。ur=/ɜː/。拆：n / ur / se → nurse。跟 serve/shirt 对比：er=ir=ur 都发 /ɜː/。"
+            }
+          ]
+        },
+        {
+          "id": "w7",
+          "kind": "word",
+          "text": "hurt",
+          "syllables": ["hurt"],
+          "stressNote": "ur=/ɜː/",
+          "tipsZh": "h-ur-t → /hɜːt/（解码练习）",
+          "grammarZh": "",
+          "corrections": [
+            {
+              "at": "2026-10-14",
+              "issues": ["与 heart 混淆"],
+              "coach": "慢一点：hurt。ur=/ɜː/，不是 heart。拆：h / ur / t → hurt。"
+            }
+          ]
+        },
+        {
+          "id": "w8",
+          "kind": "word",
+          "text": "collar",
+          "syllables": ["col", "lar"],
+          "stressNote": "重音 COL；后音节 ar 弱读 /ə/",
+          "tipsZh": "Unit6：末尾 ar/er/ir/or/ur 弱读常发 /ə/",
+          "grammarZh": "",
+          "corrections": [
+            {
+              "at": "2026-10-14",
+              "issues": ["后音节过重"],
+              "coach": "慢一点：collar。重音在前 COL，后 lar 轻轻 /lə/。拆：col / lar → collar。"
+            }
+          ]
+        },
+        {
+          "id": "w9",
+          "kind": "word",
+          "text": "teacher",
+          "syllables": ["tea", "cher"],
+          "stressNote": "TEA-cher；er=/ə/",
+          "tipsZh": "tea + cher，cher 轻",
+          "grammarZh": "",
+          "corrections": []
+        },
+        {
+          "id": "w10",
+          "kind": "word",
+          "text": "doctor",
+          "syllables": ["doc", "tor"],
+          "stressNote": "DOC-tor；or=/ə/",
+          "tipsZh": "后音节 tor 弱读 /tə/",
+          "grammarZh": "",
+          "corrections": [
+            {
+              "at": "2026-10-14",
+              "issues": ["or 发成 /ɔː/"],
+              "coach": "慢一点：doctor。重音 DOC，tor 要轻成 /tə/（不是 /tɔː/）。拆：doc / tor。"
+            }
+          ]
+        },
+        {
+          "id": "w11",
+          "kind": "word",
+          "text": "tapir",
+          "syllables": ["ta", "pir"],
+          "stressNote": "TA-pir；ir 弱读 /ə/",
+          "tipsZh": "貘：/ˈteɪpə/ 或教材弱读 /ˈteɪpɪr/ 近似；重点是后音节轻",
+          "grammarZh": "",
+          "corrections": [
+            {
+              "at": "2026-10-14",
+              "issues": ["生词、后音节读重"],
+              "coach": "慢一点：tapir（貘）。重音在前 ta，pir 轻轻。拆：ta / pir → tapir。对照图片动物再读两遍。"
+            }
+          ]
+        },
+        {
+          "id": "w12",
+          "kind": "word",
+          "text": "lemur",
+          "syllables": ["le", "mur"],
+          "stressNote": "LE-mur；ur=/ə/",
+          "tipsZh": "狐猴：/ˈliːmə/；mur 轻",
+          "grammarZh": "",
+          "corrections": [
+            {
+              "at": "2026-10-14",
+              "issues": ["ur 发成 /ɜː/"],
+              "coach": "慢一点：lemur。这是弱读 ur=/ə/，不像 nurse 的 /ɜː/。拆：le / mur → lemur。"
+            }
+          ]
+        },
+        {
+          "id": "w13",
+          "kind": "word",
+          "text": "butter",
+          "syllables": ["but", "ter"],
+          "stressNote": "BUT-ter",
+          "tipsZh": "解码：but + ter",
+          "grammarZh": "",
+          "corrections": [
+            {
+              "at": "2026-10-14",
+              "issues": ["指读到 but-ter"],
+              "coach": "慢一点：butter。拆两次：but / ter → butter。ter 轻读。再快读。"
+            }
+          ]
+        },
+        {
+          "id": "w14",
+          "kind": "word",
+          "text": "forward",
+          "syllables": ["for", "ward"],
+          "stressNote": "FOR-ward",
+          "tipsZh": "for + ward",
+          "grammarZh": "",
+          "corrections": []
+        },
+        {
+          "id": "w15",
+          "kind": "word",
+          "text": "sailor",
+          "syllables": ["sai", "lor"],
+          "stressNote": "SAI-lor；or=/ə/",
+          "tipsZh": "sai + lor",
+          "grammarZh": "",
+          "corrections": []
+        }
+      ]
+    },
     {
       "id": "demo-space-words-2026-10-14",
       "title": "示例 · 字母发音与短句",
       "grade": "三年级",
       "date": "2026-10-14",
-      "tags": ["示例", "单词", "句子"],
-      "note": "教读顺序：慢读 → 拆分两次 → 快读。纠音后看橙色提示再练。",
-      "sourceNote": "内置示例，飞书发课本照片后会新增正式课次",
+      "tags": ["示例"],
+      "note": "内置示例。正式练习请用上面两课。",
+      "sourceNote": "内置示例",
       "items": [
         {
           "id": "i1",
           "kind": "word",
           "text": "space",
           "syllables": ["space"],
-          "stressNote": "单音节，整体重读",
-          "tipsZh": "a_e：中间 a 发字母 A 的名字音 /eɪ/，词尾 e 不发音（A space E → /eɪ/）",
+          "stressNote": "单音节",
+          "tipsZh": "a_e 发字母 A 名 /eɪ/",
           "grammarZh": "",
           "corrections": []
         },
@@ -27,8 +399,8 @@
           "kind": "word",
           "text": "beautiful",
           "syllables": ["beau", "ti", "ful"],
-          "stressNote": "重音在第一拍：BEAU-ti-ful",
-          "tipsZh": "beau 发 /ˈbjuː/；ti 轻读；ful 发 /fəl/",
+          "stressNote": "BEAU-ti-ful",
+          "tipsZh": "beau=/bjuː/",
           "grammarZh": "",
           "corrections": []
         },
@@ -37,16 +409,10 @@
           "kind": "sentence",
           "text": "This is a big cake.",
           "syllables": ["This", "is", "a", "big", "cake"],
-          "stressNote": "实词略重：This / big / cake",
-          "tipsZh": "cake：a_e 同样发 /eɪ/",
-          "grammarZh": "This is + 名词：这是……",
-          "corrections": [
-            {
-              "at": "2026-10-14",
-              "issues": ["cake 读成了 /æ/"],
-              "coach": "慢一点：cake。注意 a_e 发字母 A 音 /eɪ/，不要发 /æ/。拆：c-ake → cake。跟读两遍再快读整句。"
-            }
-          ]
+          "stressNote": "big / cake",
+          "tipsZh": "cake：a_e=/eɪ/",
+          "grammarZh": "This is + 名词",
+          "corrections": []
         }
       ]
     }

@@ -73,3 +73,83 @@
 .tip-box p {
   margin: 0;
 }
+
+.outline-box,
+.fix-summary-box {
+  margin: 10px 0 12px;
+  border: 1px solid var(--line);
+  border-radius: 14px;
+  background: var(--panel);
+  padding: 10px 14px;
+  box-shadow: var(--shadow);
+}
+.outline-box summary,
+.fix-summary-box summary {
+  cursor: pointer;
+  font-weight: 800;
+  color: var(--accent-deep);
+}
+.outline-list {
+  margin: 10px 0 0;
+  padding-left: 0;
+  list-style: none;
+  display: grid;
+  gap: 6px;
+  max-height: 220px;
+  overflow: auto;
+}
+.outline-list button {
+  width: 100%;
+  text-align: left;
+  border: 1px solid var(--line);
+  background: #fafcfb;
+  border-radius: 10px;
+  padding: 8px 10px;
+  font: inherit;
+  cursor: pointer;
+  color: var(--ink);
+}
+.outline-list button.active {
+  border-color: #9fd0c8;
+  background: #eef8f5;
+  font-weight: 700;
+}
+.outline-list button.has-fix {
+  border-color: #f0c48a;
+  background: #fff8ef;
+}
+.outline-list .mark {
+  display: inline-block;
+  margin-left: 6px;
+  font-size: 0.78rem;
+  color: #9a5b12;
+  font-weight: 800;
+}
+.fix-summary-list {
+  margin: 10px 0 0;
+  padding-left: 1.1em;
+  line-height: 1.55;
+  font-size: 0.92rem;
+}
+.fix-summary-list li {
+  margin-bottom: 8px;
+}
+.fix-summary-list button {
+  border: 0;
+  background: none;
+  color: var(--accent-deep);
+  font-weight: 700;
+  cursor: pointer;
+  padding: 0;
+  font: inherit;
+}
+.fix-history {
+  margin-top: 10px;
+  padding-top: 8px;
+  border-top: 1px dashed #f0c48a;
+  font-size: 0.88rem;
+  color: #6b4a22;
+}
+.fix-history .hist-item {
+  margin-top: 6px;
+}
