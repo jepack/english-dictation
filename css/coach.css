@@ -1,0 +1,75 @@
+.header-links {
+  margin: 10px 0 0;
+  font-weight: 700;
+}
+
+.coach-main {
+  grid-template-columns: 1.4fr 0.8fr;
+}
+.coach-steps {
+  margin-top: 10px;
+  grid-template-columns: 1fr 1fr;
+}
+@media (min-width: 560px) {
+  .coach-steps { grid-template-columns: repeat(4, 1fr); }
+}
+
+.split-line {
+  margin: 12px 0 0;
+  font-family: var(--font-en);
+  font-size: clamp(1.05rem, 3.5vw, 1.35rem);
+  letter-spacing: 0.04em;
+  color: var(--accent-deep);
+  min-height: 1.4em;
+}
+.split-line .chunk {
+  display: inline-block;
+  margin: 0 4px;
+  padding: 2px 8px;
+  border-radius: 8px;
+  background: #e5f4f0;
+}
+.split-line .chunk.active {
+  background: var(--warm);
+  color: #3a2508;
+  font-weight: 700;
+}
+
+.stress-line {
+  margin: 8px 0 0;
+  color: var(--muted);
+  font-size: 0.95rem;
+}
+
+.tip-box,
+.fix-box {
+  margin-top: 12px;
+  border-radius: 14px;
+  padding: 12px 14px;
+  line-height: 1.55;
+  font-size: 0.95rem;
+}
+.tip-box {
+  background: #eef8f5;
+  border: 1px solid #9fd0c8;
+  color: var(--ink);
+}
+.fix-box {
+  background: #fff6eb;
+  border: 1px solid #f0c48a;
+  color: #3a2508;
+}
+.tip-title,
+.fix-title {
+  font-weight: 800;
+  margin-bottom: 6px;
+  font-size: 0.88rem;
+}
+.tip-box .grammar {
+  margin: 8px 0 0;
+  color: var(--muted);
+}
+.fix-box p,
+.tip-box p {
+  margin: 0;
+}

@@ -68,6 +68,20 @@ header.app-header p {
   color: var(--accent-deep);
   border-color: #9fd0c8;
 }
+.nav-tabs a.nav-tab-link {
+  border: 1px solid var(--line);
+  background: #fff8ef;
+  color: #3a2508;
+  border-radius: 999px;
+  padding: 8px 14px;
+  font: inherit;
+  font-weight: 700;
+  text-decoration: none;
+}
+.nav-tabs a.nav-tab-link:hover {
+  border-color: #f0c48a;
+  text-decoration: none;
+}
 
 .panel {
   margin-top: 14px;

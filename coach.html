@@ -1,0 +1,81 @@
+<!DOCTYPE html>
+<html lang="zh-CN">
+<head>
+  <meta charset="UTF-8" />
+  <meta name="viewport" content="width=device-width, initial-scale=1, viewport-fit=cover" />
+  <meta name="apple-mobile-web-app-capable" content="yes" />
+  <meta name="mobile-web-app-capable" content="yes" />
+  <title>英语点读</title>
+  <link rel="stylesheet" href="./css/styles.css" />
+  <link rel="stylesheet" href="./css/coach.css" />
+</head>
+<body>
+  <div class="wrap">
+    <header class="app-header">
+      <h1 id="site-title">英语点读</h1>
+      <p id="site-sub">飞书建课 · 慢读 → 拆分×2 → 快读 · 视频纠音</p>
+      <p class="header-links">
+        <a href="./index.html">← 听写站</a>
+      </p>
+    </header>
+
+    <section id="view-home">
+      <div id="card-list" class="card-list"></div>
+      <p class="footer-note">
+        飞书发课本照片给哆啦A梦 → 生成课次；练完发朗读视频 → 纠音后刷新本页再练。
+      </p>
+    </section>
+
+    <section id="view-play" hidden>
+      <a class="back" href="#/" id="btnBack">← 返回课次</a>
+      <h2 id="play-title" style="margin:0 0 8px;font-size:1.25rem;"></h2>
+      <p class="hint" id="play-note" style="margin-top:0;"></p>
+
+      <div class="panel">
+        <div class="stage" aria-live="polite">
+          <div class="badge" id="badge">准备就绪</div>
+          <p class="prompt" id="kindLabel">单词</p>
+          <p class="big" id="display">Ready?</p>
+          <p class="split-line" id="splitLine" hidden></p>
+          <p class="stress-line" id="stressLine" hidden></p>
+        </div>
+
+        <div class="tip-box" id="tipBox" hidden>
+          <div class="tip-title">怎么读</div>
+          <p id="tipsZh"></p>
+          <p id="grammarZh" class="grammar" hidden></p>
+        </div>
+
+        <div class="fix-box" id="fixBox" hidden>
+          <div class="fix-title">要纠正</div>
+          <p id="fixText"></p>
+        </div>
+
+        <div class="progress"><i id="bar"></i></div>
+        <div class="meta-line">
+          <span id="count">0 / 0</span>
+          <span id="phaseHint">点「教我读」</span>
+        </div>
+
+        <div class="controls coach-main">
+          <button class="btn btn-start" id="btnTeach" type="button">教我读</button>
+          <button class="btn btn-stop" id="btnStop" type="button" disabled>停止</button>
+        </div>
+        <div class="controls coach-steps">
+          <button class="btn btn-replay" id="btnSlow" type="button">慢读</button>
+          <button class="btn btn-replay" id="btnSplit" type="button">拆分读</button>
+          <button class="btn btn-replay" id="btnFast" type="button">快读</button>
+          <button class="btn btn-next" id="btnNext" type="button">下一条</button>
+        </div>
+        <div class="controls" style="grid-template-columns:1fr 1fr;margin-top:10px;">
+          <button class="btn btn-replay" id="btnPrev" type="button">上一条</button>
+          <button class="btn btn-replay" id="btnReplayTeach" type="button">再教一遍</button>
+        </div>
+        <p class="hint" id="hint">顺序：先慢读整词/整句 → 按块拆开读两遍 → 再快读。飞书发视频可纠音。</p>
+      </div>
+    </section>
+  </div>
+
+  <script src="./js/coach.js"></script>
+</body>
+</html>

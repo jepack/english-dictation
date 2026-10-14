@@ -1,0 +1,54 @@
+{
+  "version": 1,
+  "siteTitle": "英语点读",
+  "siteSubtitle": "飞书建课 · 慢读拆分快读 · 视频纠音",
+  "lessons": [
+    {
+      "id": "demo-space-words-2026-10-14",
+      "title": "示例 · 字母发音与短句",
+      "grade": "三年级",
+      "date": "2026-10-14",
+      "tags": ["示例", "单词", "句子"],
+      "note": "教读顺序：慢读 → 拆分两次 → 快读。纠音后看橙色提示再练。",
+      "sourceNote": "内置示例，飞书发课本照片后会新增正式课次",
+      "items": [
+        {
+          "id": "i1",
+          "kind": "word",
+          "text": "space",
+          "syllables": ["space"],
+          "stressNote": "单音节，整体重读",
+          "tipsZh": "a_e：中间 a 发字母 A 的名字音 /eɪ/，词尾 e 不发音（A space E → /eɪ/）",
+          "grammarZh": "",
+          "corrections": []
+        },
+        {
+          "id": "i2",
+          "kind": "word",
+          "text": "beautiful",
+          "syllables": ["beau", "ti", "ful"],
+          "stressNote": "重音在第一拍：BEAU-ti-ful",
+          "tipsZh": "beau 发 /ˈbjuː/；ti 轻读；ful 发 /fəl/",
+          "grammarZh": "",
+          "corrections": []
+        },
+        {
+          "id": "i3",
+          "kind": "sentence",
+          "text": "This is a big cake.",
+          "syllables": ["This", "is", "a", "big", "cake"],
+          "stressNote": "实词略重：This / big / cake",
+          "tipsZh": "cake：a_e 同样发 /eɪ/",
+          "grammarZh": "This is + 名词：这是……",
+          "corrections": [
+            {
+              "at": "2026-10-14",
+              "issues": ["cake 读成了 /æ/"],
+              "coach": "慢一点：cake。注意 a_e 发字母 A 音 /eɪ/，不要发 /æ/。拆：c-ake → cake。跟读两遍再快读整句。"
+            }
+          ]
+        }
+      ]
+    }
+  ]
+}

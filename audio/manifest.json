@@ -1,6 +1,11 @@
 {
   "zh|下一个。": "audio/zh_af8c08b2ee02.mp3",
   "zh|听写结束。做得很好！": "audio/zh_9c4b1a9bcc10.mp3",
+  "zh|慢读。": "audio/zh_a0cbb1a9f735.mp3",
+  "zh|拆开读。": "audio/zh_5eaa5839e735.mp3",
+  "zh|再拆一次。": "audio/zh_692c0587c5fa.mp3",
+  "zh|快读。": "audio/zh_ab555d5825ee.mp3",
+  "zh|跟我读。": "audio/zh_85abc1c19b2e.mp3",
   "zh|第一题": "audio/zh_3998358449aa.mp3",
   "en|This is my father.": "audio/en_614282c5dfa6.mp3",
   "zh|第二题": "audio/zh_c974ca58aec6.mp3",
@@ -20,5 +25,16 @@
   "en|ride. riding a bicycle.": "audio/en_1aaf8cd1a124.mp3",
   "en|dance. dancing.": "audio/en_429f220e3677.mp3",
   "zh|动词变形开始。": "audio/zh_583c53e792a0.mp3",
-  "zh|句子开始。": "audio/zh_dbf7fcdfeb25.mp3"
+  "zh|句子开始。": "audio/zh_dbf7fcdfeb25.mp3",
+  "en|space": "audio/en_e68d63494641.mp3",
+  "en|beautiful": "audio/en_631cdc70cb2d.mp3",
+  "en|beau": "audio/en_e794e4ddaa25.mp3",
+  "en|ti": "audio/en_f696a57d5bc0.mp3",
+  "en|ful": "audio/en_a0b3f2178a22.mp3",
+  "en|This is a big cake.": "audio/en_a275d9c3fe74.mp3",
+  "en|This": "audio/en_180592437895.mp3",
+  "en|is": "audio/en_24b0060f8491.mp3",
+  "en|a": "audio/en_18fc0f99a916.mp3",
+  "en|big": "audio/en_d32f93e87979.mp3",
+  "en|cake": "audio/en_64dca7857a94.mp3"
 }

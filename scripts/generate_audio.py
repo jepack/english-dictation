@@ -11,6 +11,7 @@ from pathlib import Path
 
 ROOT = Path(__file__).resolve().parents[1]
 DATA = ROOT / "data" / "dictations.json"
+LESSONS = ROOT / "data" / "lessons.json"
 AUDIO_DIR = ROOT / "audio"
 MANIFEST = AUDIO_DIR / "manifest.json"
 
@@ -22,6 +23,11 @@ VOICES = {
 FIXED = [
     ("zh", "下一个。"),
     ("zh", "听写结束。做得很好！"),
+    ("zh", "慢读。"),
+    ("zh", "拆开读。"),
+    ("zh", "再拆一次。"),
+    ("zh", "快读。"),
+    ("zh", "跟我读。"),
 ]
 
 
@@ -61,6 +67,14 @@ def collect_phrases(data: dict) -> list[tuple[str, str]]:
         for sec in sorted(sections):
             add("zh", f"{sec}开始。")
 
+    if LESSONS.exists():
+        lessons = json.loads(LESSONS.read_text(encoding="utf-8"))
+        for lesson in lessons.get("lessons", []):
+            for item in lesson.get("items", []):
+                add("en", item.get("text") or "")
+                for part in item.get("syllables") or []:
+                    add("en", str(part).strip())
+
     return out
 
 
@@ -91,7 +105,7 @@ def synth(lang: str, text: str, mp3: Path) -> None:
 
 
 def main() -> None:
-    data = json.loads(DATA.read_text(encoding="utf-8"))
+    data = json.loads(DATA.read_text(encoding="utf-8")) if DATA.exists() else {"dictations": []}
     AUDIO_DIR.mkdir(parents=True, exist_ok=True)
     phrases = collect_phrases(data)
     manifest: dict[str, str] = {}
