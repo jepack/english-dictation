@@ -1,23 +1,39 @@
 #!/usr/bin/env python3
-"""从 dictations.json 预生成 mp3，供任意浏览器用 <audio> 播放（不依赖 speechSynthesis）。"""
+"""Pre-generate bilingual audio with the local Kokoro neural TTS runtime.
+
+The site always plays generated files through ``<audio>``. It never calls the
+browser speech synthesizer or macOS ``say``. A versioned hash in every file
+name prevents browsers from reusing clips made by an older voice profile.
+"""
 
 from __future__ import annotations
 
 import hashlib
 import json
+import os
 import subprocess
 import tempfile
 from pathlib import Path
+
 
 ROOT = Path(__file__).resolve().parents[1]
 DATA = ROOT / "data" / "dictations.json"
 LESSONS = ROOT / "data" / "lessons.json"
 AUDIO_DIR = ROOT / "audio"
 MANIFEST = AUDIO_DIR / "manifest.json"
+WORKER = ROOT / "scripts" / "kokoro_tts_worker.py"
 
-VOICES = {
-    "en": "Samantha",
-    "zh": "Tingting",
+DEFAULT_RUNTIME = ROOT.parents[1] / "runtime" / "kokoro-tts"
+RUNTIME = Path(os.environ.get("KOKORO_TTS_ROOT", DEFAULT_RUNTIME)).expanduser()
+PYTHON = RUNTIME / ".venv312" / "bin" / "python"
+MODEL_DIR = RUNTIME / "models"
+
+ENGINE_VERSION = "kokoro-v1.1-zh-fp32-v1"
+VOICE_CONFIG = {
+    # Clear Mandarin female voice, slightly slowed for tones and syllables.
+    "zh": {"voice": "zf_001", "speed": 0.95},
+    # Clear American English female voice at an early primary-school pace.
+    "en": {"voice": "af_maple", "speed": 0.70},
 }
 
 FIXED = [
@@ -36,8 +52,12 @@ def key(lang: str, text: str) -> str:
 
 
 def file_stem(lang: str, text: str) -> str:
-    h = hashlib.md5(key(lang, text).encode("utf-8")).hexdigest()[:12]
-    return f"{lang}_{h}"
+    cfg = VOICE_CONFIG[lang]
+    profile = "|".join(
+        (ENGINE_VERSION, cfg["voice"], str(cfg["speed"]), key(lang, text))
+    )
+    digest = hashlib.sha256(profile.encode("utf-8")).hexdigest()[:16]
+    return f"{lang}_{digest}"
 
 
 def collect_phrases(data: dict) -> list[tuple[str, str]]:
@@ -48,24 +68,24 @@ def collect_phrases(data: dict) -> list[tuple[str, str]]:
         text = (text or "").strip()
         if not text:
             return
-        k = key(lang, text)
-        if k in seen:
+        phrase_key = key(lang, text)
+        if phrase_key in seen:
             return
-        seen.add(k)
+        seen.add(phrase_key)
         out.append((lang, text))
 
     for lang, text in FIXED:
         add(lang, text)
 
-    for d in data.get("dictations", []):
+    for dictation in data.get("dictations", []):
         sections: set[str] = set()
-        for item in d.get("items", []):
-            sec = (item.get("section") or "听写").strip()
-            sections.add(sec)
+        for item in dictation.get("items", []):
+            section = (item.get("section") or "听写").strip()
+            sections.add(section)
             add("zh", item.get("promptZh") or "")
             add("en", item.get("text") or "")
-        for sec in sorted(sections):
-            add("zh", f"{sec}开始。")
+        for section in sorted(sections):
+            add("zh", f"{section}开始。")
 
     if LESSONS.exists():
         lessons = json.loads(LESSONS.read_text(encoding="utf-8"))
@@ -78,55 +98,70 @@ def collect_phrases(data: dict) -> list[tuple[str, str]]:
     return out
 
 
-def synth(lang: str, text: str, mp3: Path) -> None:
-    voice = VOICES[lang]
-    with tempfile.TemporaryDirectory() as td:
-        aiff = Path(td) / "out.aiff"
-        subprocess.run(
-            ["say", "-v", voice, "-o", str(aiff), text],
-            check=True,
-        )
-        subprocess.run(
-            [
-                "ffmpeg",
-                "-y",
-                "-i",
-                str(aiff),
-                "-codec:a",
-                "libmp3lame",
-                "-qscale:a",
-                "4",
-                str(mp3),
-            ],
-            check=True,
-            stdout=subprocess.DEVNULL,
-            stderr=subprocess.DEVNULL,
-        )
+def validate_runtime() -> None:
+    required = (
+        PYTHON,
+        WORKER,
+        MODEL_DIR / "kokoro-v1.1-zh.onnx",
+        MODEL_DIR / "voices-v1.1-zh.bin",
+    )
+    missing = [str(path) for path in required if not path.exists()]
+    if missing:
+        joined = "\n  - ".join(missing)
+        raise SystemExit(f"Kokoro TTS runtime is incomplete:\n  - {joined}")
 
 
 def main() -> None:
+    validate_runtime()
     data = json.loads(DATA.read_text(encoding="utf-8")) if DATA.exists() else {"dictations": []}
     AUDIO_DIR.mkdir(parents=True, exist_ok=True)
     phrases = collect_phrases(data)
     manifest: dict[str, str] = {}
-    made = 0
+    jobs: list[dict] = []
+
     for lang, text in phrases:
-        stem = file_stem(lang, text)
-        rel = f"audio/{stem}.mp3"
-        mp3 = ROOT / rel
-        if not mp3.exists():
-            print(f"generate {rel}  ({lang}) {text!r}")
-            synth(lang, text, mp3)
-            made += 1
+        cfg = VOICE_CONFIG[lang]
+        rel = f"audio/{file_stem(lang, text)}.wav"
+        output = ROOT / rel
+        if output.exists() and output.stat().st_size > 44:
+            print(f"keep     {rel}  ({lang}/{cfg['voice']}) {text!r}")
         else:
-            print(f"keep     {rel}  ({lang}) {text!r}")
+            jobs.append(
+                {
+                    "lang": lang,
+                    "text": text,
+                    "voice": cfg["voice"],
+                    "speed": cfg["speed"],
+                    "output": str(output),
+                }
+            )
         manifest[key(lang, text)] = rel
 
-    MANIFEST.write_text(
+    if jobs:
+        with tempfile.NamedTemporaryFile("w", suffix=".json", encoding="utf-8") as job_file:
+            json.dump(jobs, job_file, ensure_ascii=False)
+            job_file.flush()
+            subprocess.run(
+                [
+                    str(PYTHON),
+                    "-u",
+                    str(WORKER),
+                    "--model-dir",
+                    str(MODEL_DIR),
+                    "--jobs",
+                    job_file.name,
+                ],
+                check=True,
+            )
+
+    # Publish only after every requested clip has succeeded.
+    manifest_part = MANIFEST.with_suffix(".part.json")
+    manifest_part.write_text(
         json.dumps(manifest, ensure_ascii=False, indent=2) + "\n",
         encoding="utf-8",
     )
-    print(f"done: {len(manifest)} clips, {made} newly generated → {MANIFEST.relative_to(ROOT)}")
+    manifest_part.replace(MANIFEST)
+    print(f"done: {len(manifest)} clips, {len(jobs)} newly generated -> {MANIFEST.relative_to(ROOT)}")
 
 
 if __name__ == "__main__":
