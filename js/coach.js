@@ -23,9 +23,12 @@
     return String(lang || "en").toLowerCase().startsWith("zh") ? "zh" : "en";
   }
 
-  function manifestPath(text, lang) {
-    const k = `${langKey(lang)}|${text}`;
-    return state.audioManifest[k] || null;
+  function manifestPath(text, lang, variant = "normal") {
+    const suffix = variant === "slow" ? "-slow" : "";
+    const k = `${langKey(lang)}${suffix}|${text}`;
+    // While the background migration is running, use the normal whole phrase
+    // if its continuous slow counterpart is not ready yet.
+    return state.audioManifest[k] || state.audioManifest[`${langKey(lang)}|${text}`] || null;
   }
 
   function onlineTtsUrl(text, lang) {
@@ -99,10 +102,10 @@
     });
   }
 
-  async function speak(text, lang = "en") {
+  async function speak(text, lang = "en", variant = "normal") {
     text = String(text || "").trim();
     if (!text || state.abort) return false;
-    const local = manifestPath(text, lang);
+    const local = manifestPath(text, lang, variant);
     if (local) {
       const ok = await playAudioUrl(local);
       if (ok || state.abort) return ok;
@@ -323,33 +326,29 @@
     await speak("慢读。", "zh");
     if (state.abort) return;
     await waitMs(220);
-    await speak(item.text, "en");
+    await speak(item.text, "en", "slow");
   }
 
   async function playSplit(item, rounds = 2) {
     const chunks = chunksFor(item);
-    const gap = chunks.length <= 2 ? 520 : 420;
     for (let r = 0; r < rounds; r++) {
       if (state.abort) return;
       setPhase(r === 0 ? "拆开读" : "再拆一次");
       await speak(r === 0 ? "拆开读。" : "再拆一次。", "zh");
       if (state.abort) return;
       await waitMs(280);
-      for (let i = 0; i < chunks.length; i++) {
-        if (state.abort) return;
-        renderSplit(chunks, i);
-        const ok = await speak(chunks[i], "en");
-        // If a chunk clip failed, still pause so the UI highlight is readable.
-        await waitMs(ok ? gap : gap + 200);
-      }
+      // Chunks are visual teaching hints. Audio remains one continuous slowed
+      // whole word, so a fragment such as "s" is never pronounced as "ess".
+      renderSplit(chunks, -1);
+      await speak(item.text, "en", "slow");
       renderSplit(chunks, -1);
       await waitMs(480);
     }
   }
 
   async function playFast(item) {
-    setPhase("快读");
-    await speak("快读。", "zh");
+    setPhase("正常读");
+    await speak("正常读。", "zh");
     if (state.abort) return;
     await waitMs(180);
     await speak(item.text, "en");

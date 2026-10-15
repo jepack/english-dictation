@@ -1,18 +1,26 @@
 #!/usr/bin/env python3
-"""Pre-generate bilingual audio with the local Kokoro neural TTS runtime.
+"""Generate lesson audio with the persistent local IndexTTS2 service.
 
-The site always plays generated files through ``<audio>``. It never calls the
-browser speech synthesizer or macOS ``say``. A versioned hash in every file
-name prevents browsers from reusing clips made by an older voice profile.
+IndexTTS2 is the default and only automatic path. Kokoro is intentionally not
+used as a fallback: a failed request stays visible instead of silently
+publishing the old voice again.
+
+For English, one natural whole-phrase recording is generated and a continuous
+slow version is derived from it. Letter and syllable fragments are visual hints
+only; they are never submitted to TTS as standalone words.
 """
 
 from __future__ import annotations
 
+import argparse
 import hashlib
 import json
 import os
+import re
+import shutil
 import subprocess
-import tempfile
+import urllib.error
+import urllib.request
 from pathlib import Path
 
 
@@ -21,29 +29,26 @@ DATA = ROOT / "data" / "dictations.json"
 LESSONS = ROOT / "data" / "lessons.json"
 AUDIO_DIR = ROOT / "audio"
 MANIFEST = AUDIO_DIR / "manifest.json"
-WORKER = ROOT / "scripts" / "kokoro_tts_worker.py"
+SERVICE_URL = "http://127.0.0.1:8776/v1/tts"
+ENGINE_VERSION = "indextts2-local-continuous-v1"
+SLOW_RATE = 0.62
 
-# excel/dictation-site → AIRemoteCoding/runtime/kokoro-tts
-_DEFAULT_CANDIDATES = (
-    Path(os.environ["KOKORO_TTS_ROOT"]).expanduser()
-    if os.environ.get("KOKORO_TTS_ROOT")
-    else None,
-    ROOT.parents[2] / "runtime" / "kokoro-tts",
-    ROOT.parents[1] / "runtime" / "kokoro-tts",
-)
-RUNTIME = next((p for p in _DEFAULT_CANDIDATES if p and (p / ".venv312" / "bin" / "python").exists()), _DEFAULT_CANDIDATES[1])
-PYTHON = RUNTIME / ".venv312" / "bin" / "python"
-MODEL_DIR = RUNTIME / "models"
 
-# mp3 suffix in profile forces new hashes when switching off Feishu-unfriendly wav.
-ENGINE_VERSION = "kokoro-v1.1-zh-fp32-v2-mp3"
-VOICE_CONFIG = {
-    # Clear Mandarin female voice, slightly slowed for tones and syllables.
-    "zh": {"voice": "zf_001", "speed": 0.95},
-    # Clear American English female voice at an early primary-school pace.
-    # Playback uses rate=1 in the browser (Feishu WebView breaks playbackRate).
-    "en": {"voice": "af_maple", "speed": 0.68},
-}
+def find_ffmpeg() -> str:
+    candidates = (
+        os.environ.get("FFMPEG"),
+        shutil.which("ffmpeg"),
+        str(Path.home() / ".local" / "bin" / "ffmpeg"),
+        "/usr/local/bin/ffmpeg",
+        "/opt/homebrew/bin/ffmpeg",
+    )
+    for candidate in candidates:
+        if candidate and Path(candidate).is_file():
+            return candidate
+    raise SystemExit("ffmpeg was not found; set FFMPEG to its absolute path")
+
+
+FFMPEG = find_ffmpeg()
 
 FIXED = [
     ("zh", "下一个。"),
@@ -51,170 +56,148 @@ FIXED = [
     ("zh", "慢读。"),
     ("zh", "拆开读。"),
     ("zh", "再拆一次。"),
-    ("zh", "快读。"),
+    ("zh", "正常读。"),
     ("zh", "跟我读。"),
 ]
 
 
-def key(lang: str, text: str) -> str:
-    return f"{lang}|{text}"
+def key(lang: str, text: str, variant: str = "normal") -> str:
+    suffix = "-slow" if variant == "slow" else ""
+    return f"{lang}{suffix}|{text}"
 
 
-def file_stem(lang: str, text: str) -> str:
-    cfg = VOICE_CONFIG[lang]
-    profile = "|".join(
-        (ENGINE_VERSION, cfg["voice"], str(cfg["speed"]), key(lang, text))
-    )
+def file_stem(lang: str, text: str, variant: str = "normal") -> str:
+    profile = f"{ENGINE_VERSION}|{variant}|{key(lang, text)}"
     digest = hashlib.sha256(profile.encode("utf-8")).hexdigest()[:16]
-    return f"{lang}_{digest}"
+    suffix = "_slow" if variant == "slow" else ""
+    return f"{lang}{suffix}_{digest}"
 
 
-def collect_phrases(data: dict) -> list[tuple[str, str]]:
+def collect_phrases() -> list[tuple[str, str]]:
+    """Collect whole phrases only, with newest English lessons first."""
     seen: set[str] = set()
-    out: list[tuple[str, str]] = []
+    english: list[tuple[str, str]] = []
+    chinese: list[tuple[str, str]] = []
 
     def add(lang: str, text: str) -> None:
         text = (text or "").strip()
-        if not text:
-            return
         phrase_key = key(lang, text)
-        if phrase_key in seen:
+        if not text or phrase_key in seen:
             return
         seen.add(phrase_key)
-        out.append((lang, text))
-
-    for lang, text in FIXED:
-        add(lang, text)
-
-    for dictation in data.get("dictations", []):
-        sections: set[str] = set()
-        for item in dictation.get("items", []):
-            section = (item.get("section") or "听写").strip()
-            sections.add(section)
-            add("zh", item.get("promptZh") or "")
-            add("en", item.get("text") or "")
-        for section in sorted(sections):
-            add("zh", f"{section}开始。")
+        (english if lang == "en" else chinese).append((lang, text))
 
     if LESSONS.exists():
         lessons = json.loads(LESSONS.read_text(encoding="utf-8"))
-        for lesson in lessons.get("lessons", []):
+        for lesson in reversed(lessons.get("lessons", [])):
             for item in lesson.get("items", []):
                 add("en", item.get("text") or "")
-                for part in item.get("syllables") or []:
-                    add("en", str(part).strip())
 
-    return out
+    if DATA.exists():
+        data = json.loads(DATA.read_text(encoding="utf-8"))
+        for dictation in reversed(data.get("dictations", [])):
+            sections: set[str] = set()
+            for item in dictation.get("items", []):
+                section = (item.get("section") or "听写").strip()
+                sections.add(section)
+                add("en", item.get("text") or "")
+                add("zh", item.get("promptZh") or "")
+            for section in sorted(sections):
+                add("zh", f"{section}开始。")
+
+    for lang, text in FIXED:
+        add(lang, text)
+    return english + chinese
 
 
-def validate_runtime() -> None:
-    required = (
-        PYTHON,
-        WORKER,
-        MODEL_DIR / "kokoro-v1.1-zh.onnx",
-        MODEL_DIR / "voices-v1.1-zh.bin",
+def atomic_manifest(manifest: dict[str, str]) -> None:
+    part = MANIFEST.with_suffix(".part.json")
+    part.write_text(json.dumps(manifest, ensure_ascii=False, indent=2) + "\n", encoding="utf-8")
+    part.replace(MANIFEST)
+
+
+def request_wav(text: str) -> Path:
+    body = json.dumps({"text": text, "mode": "normal"}, ensure_ascii=False).encode("utf-8")
+    request = urllib.request.Request(
+        SERVICE_URL, data=body, headers={"Content-Type": "application/json"}, method="POST"
     )
-    missing = [str(path) for path in required if not path.exists()]
-    if missing:
-        joined = "\n  - ".join(missing)
-        raise SystemExit(f"Kokoro TTS runtime is incomplete:\n  - {joined}")
+    try:
+        with urllib.request.urlopen(request, timeout=1800) as response:
+            result = json.load(response)
+    except (urllib.error.URLError, TimeoutError) as exc:
+        raise RuntimeError(f"IndexTTS2 service request failed for {text!r}: {exc}") from exc
+    if not result.get("ok"):
+        raise RuntimeError(f"IndexTTS2 failed for {text!r}: {result}")
+    wav = Path(result["path"])
+    if not wav.exists() or wav.stat().st_size <= 44:
+        raise RuntimeError(f"IndexTTS2 returned a missing/empty WAV: {wav}")
+    return wav
+
+
+def encode_mp3(source: Path, destination: Path, slow: bool = False) -> None:
+    destination.parent.mkdir(parents=True, exist_ok=True)
+    part = destination.with_suffix(".part.mp3")
+    cmd = [FFMPEG, "-y", "-hide_banner", "-loglevel", "error", "-i", str(source)]
+    if slow:
+        cmd += [
+            "-af",
+            f"aresample=44100:resampler=soxr:precision=28,atempo={SLOW_RATE},lowpass=f=9800,alimiter=limit=0.9",
+        ]
+    cmd += ["-codec:a", "libmp3lame", "-q:a", "3", str(part)]
+    subprocess.run(cmd, check=True)
+    if not part.exists() or part.stat().st_size < 500:
+        raise RuntimeError(f"encoded MP3 is too small: {part}")
+    part.replace(destination)
 
 
 def main() -> None:
-    validate_runtime()
-    data = json.loads(DATA.read_text(encoding="utf-8")) if DATA.exists() else {"dictations": []}
+    parser = argparse.ArgumentParser()
+    parser.add_argument("--only", help="regular expression matched against phrase text")
+    parser.add_argument("--limit", type=int, help="generate at most this many selected phrases")
+    args = parser.parse_args()
+
     AUDIO_DIR.mkdir(parents=True, exist_ok=True)
-    phrases = collect_phrases(data)
-    manifest: dict[str, str] = {}
-    jobs: list[dict] = []
+    try:
+        with urllib.request.urlopen("http://127.0.0.1:8776/health", timeout=5) as response:
+            health = json.load(response)
+    except Exception as exc:
+        raise SystemExit(f"IndexTTS2 service is not ready: {exc}") from exc
+    if not health.get("ready"):
+        raise SystemExit(f"IndexTTS2 service is not ready: {health}")
 
-    wav_jobs: list[dict] = []
-    for lang, text in phrases:
-        cfg = VOICE_CONFIG[lang]
-        stem = file_stem(lang, text)
-        rel = f"audio/{stem}.mp3"
-        output = ROOT / rel
-        wav_tmp = AUDIO_DIR / f"{stem}.part.wav"
-        if output.exists() and output.stat().st_size > 500:
-            print(f"keep     {rel}  ({lang}/{cfg['voice']}) {text!r}")
-        else:
-            wav_jobs.append(
-                {
-                    "lang": lang,
-                    "text": text,
-                    "voice": cfg["voice"],
-                    "speed": cfg["speed"],
-                    "output": str(wav_tmp),
-                    "mp3": str(output),
-                }
-            )
-        manifest[key(lang, text)] = rel
+    phrases = collect_phrases()
+    if args.only:
+        pattern = re.compile(args.only, re.IGNORECASE)
+        phrases = [(lang, text) for lang, text in phrases if pattern.search(text)]
+    if args.limit is not None:
+        phrases = phrases[: max(0, args.limit)]
 
-    if wav_jobs:
-        with tempfile.NamedTemporaryFile("w", suffix=".json", encoding="utf-8") as job_file:
-            # Worker writes PCM wav; we transcode to mp3 for Feishu / mobile WebViews.
-            json.dump(
-                [{k: v for k, v in job.items() if k != "mp3"} for job in wav_jobs],
-                job_file,
-                ensure_ascii=False,
-            )
-            job_file.flush()
-            subprocess.run(
-                [
-                    str(PYTHON),
-                    "-u",
-                    str(WORKER),
-                    "--model-dir",
-                    str(MODEL_DIR),
-                    "--jobs",
-                    job_file.name,
-                ],
-                check=True,
-            )
-        for job in wav_jobs:
-            wav_path = Path(job["output"])
-            mp3_path = Path(job["mp3"])
-            if not wav_path.exists() or wav_path.stat().st_size <= 44:
-                raise SystemExit(f"missing wav for {job['text']!r}: {wav_path}")
-            mp3_path.parent.mkdir(parents=True, exist_ok=True)
-            part_mp3 = mp3_path.with_suffix(".part.mp3")
-            subprocess.run(
-                [
-                    "ffmpeg",
-                    "-y",
-                    "-hide_banner",
-                    "-loglevel",
-                    "error",
-                    "-i",
-                    str(wav_path),
-                    "-codec:a",
-                    "libmp3lame",
-                    "-q:a",
-                    "4",
-                    str(part_mp3),
-                ],
-                check=True,
-            )
-            if part_mp3.stat().st_size < 500:
-                raise SystemExit(f"mp3 too small for {job['text']!r}")
-            part_mp3.replace(mp3_path)
-            wav_path.unlink(missing_ok=True)
-            print(f"mp3      {mp3_path.relative_to(ROOT)}  {job['text']!r}")
+    manifest = json.loads(MANIFEST.read_text(encoding="utf-8")) if MANIFEST.exists() else {}
+    made = 0
+    for index, (lang, text) in enumerate(phrases, 1):
+        normal_rel = f"audio/{file_stem(lang, text)}.mp3"
+        normal_path = ROOT / normal_rel
+        slow_rel = f"audio/{file_stem(lang, text, 'slow')}.mp3"
+        slow_path = ROOT / slow_rel
+        need_normal = not normal_path.exists() or normal_path.stat().st_size < 500
+        need_slow = lang == "en" and (not slow_path.exists() or slow_path.stat().st_size < 500)
 
-    # Drop stale wav clips from older TTS publishes so Pages stays lean.
-    for stale in AUDIO_DIR.glob("*.wav"):
-        stale.unlink(missing_ok=True)
+        print(f"[{index}/{len(phrases)}] {lang} {text!r}", flush=True)
+        if need_normal or need_slow:
+            wav = request_wav(text)
+            if need_normal:
+                encode_mp3(wav, normal_path)
+            if need_slow:
+                encode_mp3(wav, slow_path, slow=True)
+            made += 1
 
-    # Publish only after every requested clip has succeeded.
-    manifest_part = MANIFEST.with_suffix(".part.json")
-    manifest_part.write_text(
-        json.dumps(manifest, ensure_ascii=False, indent=2) + "\n",
-        encoding="utf-8",
-    )
-    manifest_part.replace(MANIFEST)
-    print(
-        f"done: {len(manifest)} clips, {len(wav_jobs)} newly generated -> {MANIFEST.relative_to(ROOT)}"
-    )
+        # Publish every completed phrase, allowing safe resumable migration.
+        manifest[key(lang, text)] = normal_rel
+        if lang == "en":
+            manifest[key(lang, text, "slow")] = slow_rel
+        atomic_manifest(manifest)
+
+    print(f"done: {len(phrases)} selected, {made} newly generated; engine={ENGINE_VERSION}")
 
 
 if __name__ == "__main__":

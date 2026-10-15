@@ -117,13 +117,16 @@
   "en|sailor": "audio/en_86918ff197ad1ea7.mp3",
   "en|sai": "audio/en_80ffca9bee0459a8.mp3",
   "en|lor": "audio/en_35955dd5d926bfbf.mp3",
-  "en|space": "audio/en_833b065a7d06dc59.mp3",
-  "en|beautiful": "audio/en_af6e81d3ae69d1a3.mp3",
+  "en|space": "audio/en_f23828269f4930e0.mp3",
+  "en|beautiful": "audio/en_fc7a234274534cb8.mp3",
   "en|beau": "audio/en_c10e03861d64f3a5.mp3",
   "en|ti": "audio/en_008615c20d6df2ef.mp3",
   "en|ful": "audio/en_c6cb17779ce8c3b3.mp3",
-  "en|This is a big cake.": "audio/en_7a663488e4394457.mp3",
+  "en|This is a big cake.": "audio/en_26be3560a1bce3b9.mp3",
   "en|This": "audio/en_b6747f87f59baac9.mp3",
   "en|big": "audio/en_1b7887ee94b43837.mp3",
-  "en|cake": "audio/en_c139a05f80004cad.mp3"
+  "en|cake": "audio/en_c139a05f80004cad.mp3",
+  "en-slow|space": "audio/en_slow_4406f76e32821254.mp3",
+  "en-slow|beautiful": "audio/en_slow_478e922509cde7fe.mp3",
+  "en-slow|This is a big cake.": "audio/en_slow_aec64690d55c0fae.mp3"
 }
