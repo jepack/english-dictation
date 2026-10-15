@@ -16,9 +16,9 @@
           "id": "s1",
           "kind": "sentence",
           "text": "What are you doing, Dad?",
-          "syllables": ["What", "are", "you", "doing", "Dad"],
-          "stressNote": "doing / Dad 略重",
-          "tipsZh": "doing：do + ing，/ˈduːɪŋ/",
+          "syllables": ["What", "are", "you", "do", "ing", "Dad"],
+          "stressNote": "do-ing / Dad 略重",
+          "tipsZh": "doing：拆 do / ing，/ˈduːɪŋ/",
           "grammarZh": "What are you doing? 现在进行时问句",
           "corrections": []
         },
@@ -26,9 +26,9 @@
           "id": "s2",
           "kind": "sentence",
           "text": "I am making a video.",
-          "syllables": ["I", "am", "making", "a", "video"],
-          "stressNote": "making / VI-de-o",
-          "tipsZh": "video：重音在第一拍 VI-de-o /ˈvɪdiəʊ/",
+          "syllables": ["I", "am", "ma", "king", "a", "vi", "de", "o"],
+          "stressNote": "ma-king / VI-de-o",
+          "tipsZh": "making：ma / king；video：vi / de / o，重音在 VI",
           "grammarZh": "I am + V-ing",
           "corrections": [
             {
@@ -42,9 +42,9 @@
           "id": "s3",
           "kind": "sentence",
           "text": "Here is Grandma. She is singing.",
-          "syllables": ["Here", "is", "Grandma", "She", "is", "singing"],
-          "stressNote": "Grandma / SING-ing",
-          "tipsZh": "singing：课本是 singing（唱歌），不是 sitting。sing+/ɪŋ/",
+          "syllables": ["Here", "is", "Grand", "ma", "She", "is", "sing", "ing"],
+          "stressNote": "Grand-ma / SING-ing",
+          "tipsZh": "Grandma：Grand / ma；singing：sing / ing（唱歌，不是 sitting）",
           "grammarZh": "She is + V-ing",
           "corrections": [
             {
@@ -58,9 +58,9 @@
           "id": "s4",
           "kind": "sentence",
           "text": "Here are Mum and Cherry. They are in the kitchen. They are cooking.",
-          "syllables": ["Here", "are", "Mum", "and", "Cherry", "They", "are", "in", "the", "kitchen", "They", "are", "cooking"],
-          "stressNote": "Mum / Cherry / KITCHen / COOKing",
-          "tipsZh": "kitchen：重音 KIT-chen；cooking：cook+/ɪŋ/",
+          "syllables": ["Here", "are", "Mum", "and", "Cher", "ry", "They", "are", "in", "the", "kit", "chen", "They", "are", "cook", "ing"],
+          "stressNote": "Mum / Cher-ry / KIT-chen / COOK-ing",
+          "tipsZh": "Cherry：Cher / ry；kitchen：kit / chen；cooking：cook / ing",
           "grammarZh": "Here are + 复数；They are + V-ing",
           "corrections": [
             {
@@ -74,9 +74,9 @@
           "id": "s5",
           "kind": "sentence",
           "text": "Yes, and I am eating.",
-          "syllables": ["Yes", "and", "I", "am", "eating"],
-          "stressNote": "EATing",
-          "tipsZh": "eating：eat+/ɪŋ/",
+          "syllables": ["Yes", "and", "I", "am", "eat", "ing"],
+          "stressNote": "EAT-ing",
+          "tipsZh": "eating：eat / ing",
           "grammarZh": "",
           "corrections": []
         },
@@ -84,9 +84,9 @@
           "id": "s6",
           "kind": "sentence",
           "text": "That is Grandpa. He is in the living room. He is watching TV.",
-          "syllables": ["That", "is", "Grandpa", "He", "is", "in", "the", "living", "room", "He", "is", "watching", "TV"],
-          "stressNote": "LIV-ing room / WATCH-ing",
-          "tipsZh": "living room：两个词，living 重音在 LIV；watching：/ˈwɒtʃɪŋ/，ch 发 /tʃ/",
+          "syllables": ["That", "is", "Grand", "pa", "He", "is", "in", "the", "liv", "ing", "room", "He", "is", "watch", "ing", "TV"],
+          "stressNote": "Grand-pa / LIV-ing room / WATCH-ing",
+          "tipsZh": "Grandpa：Grand / pa；living：liv / ing；watching：watch / ing，ch=/tʃ/",
           "grammarZh": "He is + 地点 / He is + V-ing",
           "corrections": [
             {
@@ -100,9 +100,9 @@
           "id": "s7",
           "kind": "sentence",
           "text": "Go away. I can't see.",
-          "syllables": ["Go", "away", "I", "can't", "see"],
+          "syllables": ["Go", "a", "way", "I", "can't", "see"],
           "stressNote": "a-WAY / can't / see",
-          "tipsZh": "can't：/kɑːnt/（英）或 /kænt/（美）",
+          "tipsZh": "away：a / way；can't：/kɑːnt/（英）或 /kænt/（美）",
           "grammarZh": "can/can't + 动词原形 see",
           "corrections": []
         },
@@ -110,9 +110,9 @@
           "id": "s8",
           "kind": "sentence",
           "text": "I can't see Dad in the video. Let's find him.",
-          "syllables": ["I", "can't", "see", "Dad", "in", "the", "video", "Let's", "find", "him"],
-          "stressNote": "can't / Dad / video / FIND / him",
-          "tipsZh": "find him：him 弱读 /hɪm/；Let's = Let us",
+          "syllables": ["I", "can't", "see", "Dad", "in", "the", "vi", "de", "o", "Let's", "find", "him"],
+          "stressNote": "can't / Dad / VI-de-o / FIND / him",
+          "tipsZh": "video：vi / de / o；find him：him 弱读；Let's = Let us",
           "grammarZh": "主格 he → 宾格 him（找的是他）",
           "corrections": [
             {
@@ -126,9 +126,9 @@
           "id": "s9",
           "kind": "sentence",
           "text": "There he is! He is in the garden. He is sleeping.",
-          "syllables": ["There", "he", "is", "He", "is", "in", "the", "garden", "He", "is", "sleeping"],
-          "stressNote": "There / GARden / SLEEPing",
-          "tipsZh": "garden：重音 GAR-den；sleeping：sleep+/ɪŋ/",
+          "syllables": ["There", "he", "is", "He", "is", "in", "the", "gar", "den", "He", "is", "sleep", "ing"],
+          "stressNote": "There / GAR-den / SLEEP-ing",
+          "tipsZh": "garden：gar / den；sleeping：sleep / ing",
           "grammarZh": "There he is! 他在那儿！",
           "corrections": [
             {

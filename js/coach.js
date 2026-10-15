@@ -1,7 +1,9 @@
 (() => {
   const DATA_URL = "./data/lessons.json";
   const MANIFEST_URL = "./audio/manifest.json";
-  const SLOW_RATE = 0.7;
+  // Feishu / iOS WebView often fails or goes silent when playbackRate ≠ 1
+  // on short clips. Slow/fast pacing is baked into pre-generated mp3 instead.
+  const PLAY_RATE = 1;
 
   const state = {
     data: null,
@@ -57,7 +59,7 @@
     return new Promise((r) => setTimeout(r, ms));
   }
 
-  function playAudioUrl(url, rate = 1) {
+  function playAudioUrl(url) {
     return new Promise((resolve) => {
       if (state.abort) return resolve(false);
       const audio = new Audio();
@@ -74,7 +76,7 @@
       audio.onerror = () => done(false);
       audio.src = url;
       try {
-        audio.playbackRate = rate;
+        audio.playbackRate = PLAY_RATE;
       } catch {
         /* ignore */
       }
@@ -85,39 +87,56 @@
     });
   }
 
-  function speakSynth(text, lang, rate = 1) {
+  function speakSynth(text, lang) {
     return new Promise((resolve) => {
       if (!("speechSynthesis" in window) || state.abort) return resolve(false);
       const u = new SpeechSynthesisUtterance(text);
       u.lang = langKey(lang) === "zh" ? "zh-CN" : "en-US";
-      u.rate = rate;
+      u.rate = langKey(lang) === "zh" ? 0.95 : 0.88;
       u.onend = () => resolve(true);
       u.onerror = () => resolve(false);
       window.speechSynthesis.speak(u);
     });
   }
 
-  async function speak(text, lang = "en", rate = 1) {
+  async function speak(text, lang = "en") {
     text = String(text || "").trim();
     if (!text || state.abort) return false;
     const local = manifestPath(text, lang);
     if (local) {
-      const ok = await playAudioUrl(local, rate);
+      const ok = await playAudioUrl(local);
       if (ok || state.abort) return ok;
     }
     const online = onlineTtsUrl(text, lang);
-    const ok2 = await playAudioUrl(online, rate);
+    const ok2 = await playAudioUrl(online);
     if (ok2 || state.abort) return ok2;
-    return speakSynth(text, lang, rate);
+    return speakSynth(text, lang);
   }
 
   function chunksFor(item) {
     const sy = (item.syllables || []).map((s) => String(s).trim()).filter(Boolean);
-    if (sy.length) return sy;
+    if (sy.length > 1) return sy;
+    if (sy.length === 1 && sy[0] !== (item.text || "").trim()) return sy;
     if ((item.kind || "") === "sentence") {
       return String(item.text || "").match(/[A-Za-z']+/g) || [item.text];
     }
-    return [item.text];
+    // Single-syllable word: still try tips like "f-or-k" / "vi / de / o"
+    const fromTips = tipChunks(item.tipsZh || "");
+    if (fromTips.length > 1) return fromTips;
+    return sy.length ? sy : [item.text];
+  }
+
+  function tipChunks(tips) {
+    const t = String(tips || "");
+    // "f-or-k → …" or "拆：vi / de / o"
+    const arrow = t.match(/([A-Za-z][A-Za-z'\/\-]{1,24})\s*→/);
+    const slash = t.match(/(?:拆[：:]|：)\s*([A-Za-z][A-Za-z'\/ ·]{1,40})/);
+    const raw = (arrow && arrow[1]) || (slash && slash[1]) || "";
+    const parts = raw
+      .split(/[\/·\-\s]+/)
+      .map((s) => s.trim())
+      .filter((s) => /^[A-Za-z']+$/.test(s));
+    return parts.length > 1 ? parts : [];
   }
 
   function latestCorrection(item) {
@@ -301,34 +320,39 @@
 
   async function playSlow(item) {
     setPhase("慢读");
-    await speak("慢读。", "zh", 1);
+    await speak("慢读。", "zh");
     if (state.abort) return;
-    await speak(item.text, "en", SLOW_RATE);
+    await waitMs(220);
+    await speak(item.text, "en");
   }
 
   async function playSplit(item, rounds = 2) {
     const chunks = chunksFor(item);
+    const gap = chunks.length <= 2 ? 520 : 420;
     for (let r = 0; r < rounds; r++) {
       if (state.abort) return;
       setPhase(r === 0 ? "拆开读" : "再拆一次");
-      await speak(r === 0 ? "拆开读。" : "再拆一次。", "zh", 1);
+      await speak(r === 0 ? "拆开读。" : "再拆一次。", "zh");
       if (state.abort) return;
+      await waitMs(280);
       for (let i = 0; i < chunks.length; i++) {
         if (state.abort) return;
         renderSplit(chunks, i);
-        await speak(chunks[i], "en", 0.85);
-        await waitMs(280);
+        const ok = await speak(chunks[i], "en");
+        // If a chunk clip failed, still pause so the UI highlight is readable.
+        await waitMs(ok ? gap : gap + 200);
       }
       renderSplit(chunks, -1);
-      await waitMs(350);
+      await waitMs(480);
     }
   }
 
   async function playFast(item) {
     setPhase("快读");
-    await speak("快读。", "zh", 1);
+    await speak("快读。", "zh");
     if (state.abort) return;
-    await speak(item.text, "en", 1);
+    await waitMs(180);
+    await speak(item.text, "en");
   }
 
   async function teachOnce() {
@@ -339,8 +363,9 @@
     syncButtons();
     try {
       setPhase("跟我读");
-      await speak("跟我读。", "zh", 1);
+      await speak("跟我读。", "zh");
       if (state.abort) return;
+      await waitMs(200);
       await playSlow(item);
       if (state.abort) return;
       await playSplit(item, 2);

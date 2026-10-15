@@ -23,17 +23,26 @@ AUDIO_DIR = ROOT / "audio"
 MANIFEST = AUDIO_DIR / "manifest.json"
 WORKER = ROOT / "scripts" / "kokoro_tts_worker.py"
 
-DEFAULT_RUNTIME = ROOT.parents[1] / "runtime" / "kokoro-tts"
-RUNTIME = Path(os.environ.get("KOKORO_TTS_ROOT", DEFAULT_RUNTIME)).expanduser()
+# excel/dictation-site → AIRemoteCoding/runtime/kokoro-tts
+_DEFAULT_CANDIDATES = (
+    Path(os.environ["KOKORO_TTS_ROOT"]).expanduser()
+    if os.environ.get("KOKORO_TTS_ROOT")
+    else None,
+    ROOT.parents[2] / "runtime" / "kokoro-tts",
+    ROOT.parents[1] / "runtime" / "kokoro-tts",
+)
+RUNTIME = next((p for p in _DEFAULT_CANDIDATES if p and (p / ".venv312" / "bin" / "python").exists()), _DEFAULT_CANDIDATES[1])
 PYTHON = RUNTIME / ".venv312" / "bin" / "python"
 MODEL_DIR = RUNTIME / "models"
 
-ENGINE_VERSION = "kokoro-v1.1-zh-fp32-v1"
+# mp3 suffix in profile forces new hashes when switching off Feishu-unfriendly wav.
+ENGINE_VERSION = "kokoro-v1.1-zh-fp32-v2-mp3"
 VOICE_CONFIG = {
     # Clear Mandarin female voice, slightly slowed for tones and syllables.
     "zh": {"voice": "zf_001", "speed": 0.95},
     # Clear American English female voice at an early primary-school pace.
-    "en": {"voice": "af_maple", "speed": 0.70},
+    # Playback uses rate=1 in the browser (Feishu WebView breaks playbackRate).
+    "en": {"voice": "af_maple", "speed": 0.68},
 }
 
 FIXED = [
@@ -119,27 +128,36 @@ def main() -> None:
     manifest: dict[str, str] = {}
     jobs: list[dict] = []
 
+    wav_jobs: list[dict] = []
     for lang, text in phrases:
         cfg = VOICE_CONFIG[lang]
-        rel = f"audio/{file_stem(lang, text)}.wav"
+        stem = file_stem(lang, text)
+        rel = f"audio/{stem}.mp3"
         output = ROOT / rel
-        if output.exists() and output.stat().st_size > 44:
+        wav_tmp = AUDIO_DIR / f"{stem}.part.wav"
+        if output.exists() and output.stat().st_size > 500:
             print(f"keep     {rel}  ({lang}/{cfg['voice']}) {text!r}")
         else:
-            jobs.append(
+            wav_jobs.append(
                 {
                     "lang": lang,
                     "text": text,
                     "voice": cfg["voice"],
                     "speed": cfg["speed"],
-                    "output": str(output),
+                    "output": str(wav_tmp),
+                    "mp3": str(output),
                 }
             )
         manifest[key(lang, text)] = rel
 
-    if jobs:
+    if wav_jobs:
         with tempfile.NamedTemporaryFile("w", suffix=".json", encoding="utf-8") as job_file:
-            json.dump(jobs, job_file, ensure_ascii=False)
+            # Worker writes PCM wav; we transcode to mp3 for Feishu / mobile WebViews.
+            json.dump(
+                [{k: v for k, v in job.items() if k != "mp3"} for job in wav_jobs],
+                job_file,
+                ensure_ascii=False,
+            )
             job_file.flush()
             subprocess.run(
                 [
@@ -153,6 +171,39 @@ def main() -> None:
                 ],
                 check=True,
             )
+        for job in wav_jobs:
+            wav_path = Path(job["output"])
+            mp3_path = Path(job["mp3"])
+            if not wav_path.exists() or wav_path.stat().st_size <= 44:
+                raise SystemExit(f"missing wav for {job['text']!r}: {wav_path}")
+            mp3_path.parent.mkdir(parents=True, exist_ok=True)
+            part_mp3 = mp3_path.with_suffix(".part.mp3")
+            subprocess.run(
+                [
+                    "ffmpeg",
+                    "-y",
+                    "-hide_banner",
+                    "-loglevel",
+                    "error",
+                    "-i",
+                    str(wav_path),
+                    "-codec:a",
+                    "libmp3lame",
+                    "-q:a",
+                    "4",
+                    str(part_mp3),
+                ],
+                check=True,
+            )
+            if part_mp3.stat().st_size < 500:
+                raise SystemExit(f"mp3 too small for {job['text']!r}")
+            part_mp3.replace(mp3_path)
+            wav_path.unlink(missing_ok=True)
+            print(f"mp3      {mp3_path.relative_to(ROOT)}  {job['text']!r}")
+
+    # Drop stale wav clips from older TTS publishes so Pages stays lean.
+    for stale in AUDIO_DIR.glob("*.wav"):
+        stale.unlink(missing_ok=True)
 
     # Publish only after every requested clip has succeeded.
     manifest_part = MANIFEST.with_suffix(".part.json")
@@ -161,7 +212,9 @@ def main() -> None:
         encoding="utf-8",
     )
     manifest_part.replace(MANIFEST)
-    print(f"done: {len(manifest)} clips, {len(jobs)} newly generated -> {MANIFEST.relative_to(ROOT)}")
+    print(
+        f"done: {len(manifest)} clips, {len(wav_jobs)} newly generated -> {MANIFEST.relative_to(ROOT)}"
+    )
 
 
 if __name__ == "__main__":
