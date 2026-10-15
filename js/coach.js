@@ -179,14 +179,20 @@
   function renderItem() {
     const item = state.items[state.index];
     if (!item) return;
+    const isSentence = (item.kind || "word") === "sentence";
     const n = state.items.length;
     $("count").textContent = `${state.index + 1} / ${n}`;
     $("bar").style.width = `${((state.index + 1) / Math.max(1, n)) * 100}%`;
     $("display").textContent = item.text || "";
-    $("kindLabel").textContent = (item.kind || "word") === "sentence" ? "句子" : "单词";
+    $("kindLabel").textContent = isSentence ? "句子" : "单词";
 
-    const chunks = chunksFor(item);
+    const chunks = isSentence ? [] : chunksFor(item);
     renderSplit(chunks, -1);
+    $("btnSplit").hidden = isSentence;
+    $("btnFast").textContent = "正常读";
+    $("hint").textContent = isSentence
+      ? "顺序：慢读整句一次 → 正常读整句一次。句子不拆开读。"
+      : "顺序：先慢读整词 → 按音节或音素拆开读两遍 → 再正常读。";
 
     const stress = (item.stressNote || "").trim();
     $("stressLine").hidden = !stress;
@@ -312,6 +318,8 @@
       }
     );
     $("btnStop").disabled = !busy;
+    const item = state.items[state.index];
+    $("btnSplit").disabled = !has || busy || !item || (item.kind || "word") === "sentence";
     if (has && !busy) {
       $("btnPrev").disabled = state.index <= 0;
       $("btnNext").disabled = state.index >= state.items.length - 1 && !busy;
@@ -330,6 +338,7 @@
   }
 
   async function playSplit(item, rounds = 2) {
+    if ((item.kind || "word") === "sentence") return;
     const chunks = chunksFor(item);
     for (let r = 0; r < rounds; r++) {
       if (state.abort) return;
@@ -367,8 +376,10 @@
       await waitMs(200);
       await playSlow(item);
       if (state.abort) return;
-      await playSplit(item, 2);
-      if (state.abort) return;
+      if ((item.kind || "word") !== "sentence") {
+        await playSplit(item, 2);
+        if (state.abort) return;
+      }
       await playFast(item);
       if (!state.abort) setPhase("这一条练完了 · 可再教或下一条");
     } finally {
