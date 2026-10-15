@@ -110,6 +110,29 @@ def collect_phrases() -> list[tuple[str, str]]:
     return english + chinese
 
 
+def collect_lesson_phrases(lesson_id: str) -> list[tuple[str, str]]:
+    if not LESSONS.exists():
+        raise SystemExit(f"lessons file not found: {LESSONS}")
+    lessons = json.loads(LESSONS.read_text(encoding="utf-8")).get("lessons", [])
+    lesson = next((item for item in lessons if item.get("id") == lesson_id), None)
+    if lesson is None:
+        raise SystemExit(f"lesson not found: {lesson_id}")
+    phrases: list[tuple[str, str]] = []
+    seen: set[str] = set()
+    for item in lesson.get("items", []):
+        text = (item.get("text") or "").strip()
+        if text and key("en", text) not in seen:
+            seen.add(key("en", text))
+            phrases.append(("en", text))
+    # The lesson UI also speaks these navigation/teaching prompts. Include
+    # them so a complete lesson never mixes IndexTTS2 with the old engine.
+    for lang, text in FIXED:
+        if key(lang, text) not in seen:
+            seen.add(key(lang, text))
+            phrases.append((lang, text))
+    return phrases
+
+
 def atomic_manifest(manifest: dict[str, str]) -> None:
     part = MANIFEST.with_suffix(".part.json")
     part.write_text(json.dumps(manifest, ensure_ascii=False, indent=2) + "\n", encoding="utf-8")
@@ -152,6 +175,7 @@ def encode_mp3(source: Path, destination: Path, slow: bool = False) -> None:
 
 def main() -> None:
     parser = argparse.ArgumentParser()
+    parser.add_argument("--lesson-id", help="generate one complete lesson plus UI prompts")
     parser.add_argument("--only", help="regular expression matched against phrase text")
     parser.add_argument("--limit", type=int, help="generate at most this many selected phrases")
     args = parser.parse_args()
@@ -165,7 +189,7 @@ def main() -> None:
     if not health.get("ready"):
         raise SystemExit(f"IndexTTS2 service is not ready: {health}")
 
-    phrases = collect_phrases()
+    phrases = collect_lesson_phrases(args.lesson_id) if args.lesson_id else collect_phrases()
     if args.only:
         pattern = re.compile(args.only, re.IGNORECASE)
         phrases = [(lang, text) for lang, text in phrases if pattern.search(text)]
