@@ -4,11 +4,143 @@
   "siteSubtitle": "手机点控 · 可加题 · 可复习",
   "dictations": [
     {
+      "id": "g3-yilin-u1-hello-2026-10-21",
+      "title": "译林三上 · Unit1 Hello 听写",
+      "grade": "三年级",
+      "date": "2026-10-21",
+      "tags": [
+        "问候",
+        "Unit1",
+        "译林三上"
+      ],
+      "note": "写完点下一个",
+      "items": [
+        {
+          "section": "问候语",
+          "promptZh": "第一题",
+          "text": "Hello.",
+          "answer": "Hello."
+        },
+        {
+          "section": "问候语",
+          "promptZh": "第二题",
+          "text": "Hi.",
+          "answer": "Hi."
+        },
+        {
+          "section": "问候语",
+          "promptZh": "第三题",
+          "text": "Good morning.",
+          "answer": "Good morning."
+        },
+        {
+          "section": "问候语",
+          "promptZh": "第四题",
+          "text": "Good afternoon.",
+          "answer": "Good afternoon."
+        },
+        {
+          "section": "问候语",
+          "promptZh": "第五题",
+          "text": "Goodbye.",
+          "answer": "Goodbye."
+        },
+        {
+          "section": "问候语",
+          "promptZh": "第六题",
+          "text": "Bye.",
+          "answer": "Bye."
+        },
+        {
+          "section": "课文句子",
+          "promptZh": "第一题",
+          "text": "Good morning, Miss Li.",
+          "answer": "Good morning, Miss Li."
+        },
+        {
+          "section": "课文句子",
+          "promptZh": "第二题",
+          "text": "Good morning, Liu Tao.",
+          "answer": "Good morning, Liu Tao."
+        },
+        {
+          "section": "课文句子",
+          "promptZh": "第三题",
+          "text": "Hi, Yang Ling.",
+          "answer": "Hi, Yang Ling."
+        },
+        {
+          "section": "课文句子",
+          "promptZh": "第四题",
+          "text": "Hello, Liu Tao.",
+          "answer": "Hello, Liu Tao."
+        },
+        {
+          "section": "课文句子",
+          "promptZh": "第五题",
+          "text": "Good afternoon, Miss Li.",
+          "answer": "Good afternoon, Miss Li."
+        },
+        {
+          "section": "课文句子",
+          "promptZh": "第六题",
+          "text": "Good afternoon, class.",
+          "answer": "Good afternoon, class."
+        },
+        {
+          "section": "课文句子",
+          "promptZh": "第七题",
+          "text": "Goodbye, Miss Li.",
+          "answer": "Goodbye, Miss Li."
+        },
+        {
+          "section": "课文句子",
+          "promptZh": "第八题",
+          "text": "Hi, I'm Sam.",
+          "answer": "Hi, I'm Sam."
+        },
+        {
+          "section": "课文句子",
+          "promptZh": "第九题",
+          "text": "Hi, I'm Bobby.",
+          "answer": "Hi, I'm Bobby."
+        },
+        {
+          "section": "字母",
+          "promptZh": "第一题",
+          "text": "A. a.",
+          "answer": "Aa"
+        },
+        {
+          "section": "字母",
+          "promptZh": "第二题",
+          "text": "B. b.",
+          "answer": "Bb"
+        },
+        {
+          "section": "字母",
+          "promptZh": "第三题",
+          "text": "C. c.",
+          "answer": "Cc"
+        },
+        {
+          "section": "字母",
+          "promptZh": "第四题",
+          "text": "D. d.",
+          "answer": "Dd"
+        }
+      ]
+    },
+    {
       "id": "g3-family-ing-2026-10-08",
       "title": "三年级 · 家庭与 ing",
       "grade": "三年级",
       "date": "2026-10-08",
-      "tags": ["句子", "动词ing", "家庭"],
+      "tags": [
+        "句子",
+        "动词ing",
+        "家庭"
+      ],
       "note": "每题英文读两遍；默认写完点「下一个」。",
       "items": [
         {
