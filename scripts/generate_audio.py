@@ -1,9 +1,9 @@
 #!/usr/bin/env python3
-"""Generate lesson audio with the persistent local IndexTTS2 service.
+"""Generate lesson audio for the dictation / reading-coach site.
 
-IndexTTS2 is the default and only automatic path. Kokoro is intentionally not
-used as a fallback: a failed request stays visible instead of silently
-publishing the old voice again.
+English uses Microsoft Edge neural TTS (en-US-JennyNeural) for clear US
+pronunciation suitable for kids learning English. Chinese teaching prompts
+still use the local IndexTTS2 service so Feishu Chinese cues stay consistent.
 
 For English, one natural whole-phrase recording is generated and a continuous
 slow version is derived from it. Letter and syllable fragments are visual hints
@@ -13,12 +13,14 @@ only; they are never submitted to TTS as standalone words.
 from __future__ import annotations
 
 import argparse
+import asyncio
 import hashlib
 import json
 import os
 import re
 import shutil
 import subprocess
+import tempfile
 import urllib.error
 import urllib.request
 from pathlib import Path
@@ -30,8 +32,10 @@ LESSONS = ROOT / "data" / "lessons.json"
 AUDIO_DIR = ROOT / "audio"
 MANIFEST = AUDIO_DIR / "manifest.json"
 SERVICE_URL = "http://127.0.0.1:8776/v1/tts"
-ENGINE_VERSION = "indextts2-local-continuous-v1"
+ENGINE_VERSION = "edge-jenny-en-indextts2-zh-v1"
 SLOW_RATE = 0.62
+EN_VOICE = "en-US-JennyNeural"
+EN_RATE = "-5%"
 
 
 def find_ffmpeg() -> str:
@@ -125,7 +129,7 @@ def collect_lesson_phrases(lesson_id: str) -> list[tuple[str, str]]:
             seen.add(key("en", text))
             phrases.append(("en", text))
     # The lesson UI also speaks these navigation/teaching prompts. Include
-    # them so a complete lesson never mixes IndexTTS2 with the old engine.
+    # them so a complete lesson never mixes engines for Chinese cues.
     for lang, text in FIXED:
         if key(lang, text) not in seen:
             seen.add(key(lang, text))
@@ -139,7 +143,7 @@ def atomic_manifest(manifest: dict[str, str]) -> None:
     part.replace(MANIFEST)
 
 
-def request_wav(text: str) -> Path:
+def request_indextts_wav(text: str) -> Path:
     body = json.dumps({"text": text, "mode": "normal"}, ensure_ascii=False).encode("utf-8")
     request = urllib.request.Request(
         SERVICE_URL, data=body, headers={"Content-Type": "application/json"}, method="POST"
@@ -155,6 +159,50 @@ def request_wav(text: str) -> Path:
     if not wav.exists() or wav.stat().st_size <= 44:
         raise RuntimeError(f"IndexTTS2 returned a missing/empty WAV: {wav}")
     return wav
+
+
+async def _edge_tts_to_mp3(text: str, destination: Path) -> None:
+    import edge_tts
+
+    communicate = edge_tts.Communicate(text, EN_VOICE, rate=EN_RATE)
+    await communicate.save(str(destination))
+
+
+def request_english_wav(text: str, scratch: Path) -> Path:
+    """Synthesize clear US English via Edge neural TTS, then decode to WAV."""
+    mp3 = scratch / "edge.mp3"
+    wav = scratch / "edge.wav"
+    asyncio.run(_edge_tts_to_mp3(text, mp3))
+    if not mp3.exists() or mp3.stat().st_size < 200:
+        raise RuntimeError(f"edge-tts produced empty audio for {text!r}")
+    subprocess.run(
+        [
+            FFMPEG,
+            "-y",
+            "-hide_banner",
+            "-loglevel",
+            "error",
+            "-i",
+            str(mp3),
+            "-ac",
+            "1",
+            "-ar",
+            "44100",
+            "-c:a",
+            "pcm_s16le",
+            str(wav),
+        ],
+        check=True,
+    )
+    if not wav.exists() or wav.stat().st_size <= 44:
+        raise RuntimeError(f"edge-tts WAV decode failed for {text!r}")
+    return wav
+
+
+def request_wav(lang: str, text: str, scratch: Path) -> Path:
+    if lang == "en":
+        return request_english_wav(text, scratch)
+    return request_indextts_wav(text)
 
 
 def encode_mp3(source: Path, destination: Path, slow: bool = False) -> None:
@@ -182,14 +230,21 @@ def main() -> None:
 
     AUDIO_DIR.mkdir(parents=True, exist_ok=True)
     try:
-        with urllib.request.urlopen("http://127.0.0.1:8776/health", timeout=5) as response:
-            health = json.load(response)
-    except Exception as exc:
-        raise SystemExit(f"IndexTTS2 service is not ready: {exc}") from exc
-    if not health.get("ready"):
-        raise SystemExit(f"IndexTTS2 service is not ready: {health}")
+        import edge_tts  # noqa: F401
+    except ImportError as exc:
+        raise SystemExit("edge-tts is required for English audio; pip install edge-tts") from exc
 
     phrases = collect_lesson_phrases(args.lesson_id) if args.lesson_id else collect_phrases()
+    needs_zh = any(lang == "zh" for lang, _ in phrases)
+    if needs_zh:
+        try:
+            with urllib.request.urlopen("http://127.0.0.1:8776/health", timeout=5) as response:
+                health = json.load(response)
+        except Exception as exc:
+            raise SystemExit(f"IndexTTS2 service is not ready (needed for Chinese): {exc}") from exc
+        if not health.get("ready"):
+            raise SystemExit(f"IndexTTS2 service is not ready: {health}")
+
     if args.only:
         pattern = re.compile(args.only, re.IGNORECASE)
         phrases = [(lang, text) for lang, text in phrases if pattern.search(text)]
@@ -208,11 +263,12 @@ def main() -> None:
 
         print(f"[{index}/{len(phrases)}] {lang} {text!r}", flush=True)
         if need_normal or need_slow:
-            wav = request_wav(text)
-            if need_normal:
-                encode_mp3(wav, normal_path)
-            if need_slow:
-                encode_mp3(wav, slow_path, slow=True)
+            with tempfile.TemporaryDirectory(prefix="dictation-tts-") as tmp:
+                wav = request_wav(lang, text, Path(tmp))
+                if need_normal:
+                    encode_mp3(wav, normal_path)
+                if need_slow:
+                    encode_mp3(wav, slow_path, slow=True)
             made += 1
 
         # Publish every completed phrase, allowing safe resumable migration.

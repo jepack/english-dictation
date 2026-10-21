@@ -5,6 +5,15 @@
   // on short clips. Slow/fast pacing is baked into pre-generated mp3 instead.
   const PLAY_RATE = 1;
 
+  // Keep phase gaps tight: kids wait on English audio, not on Chinese cues / dead air.
+  const GAP = {
+    afterCue: 50,
+    betweenPhases: 90,
+    afterSplit: 80,
+    beforeAutoNext: 350,
+  };
+  const AUTO_NEXT_KEY = "coach-auto-next";
+
   const state = {
     data: null,
     audioManifest: {},
@@ -15,6 +24,7 @@
     running: false,
     currentAudio: null,
     abort: false,
+    autoNext: false,
   };
 
   const $ = (id) => document.getElementById(id);
@@ -329,59 +339,93 @@
     }
   }
 
-  async function playSlow(item) {
+  async function playSlow(item, opts = {}) {
+    const announce = opts.announce !== false;
     setPhase("慢读");
-    await speak("慢读。", "zh");
-    if (state.abort) return;
-    await waitMs(220);
+    if (announce) {
+      await speak("慢读。", "zh");
+      if (state.abort) return;
+      await waitMs(GAP.afterCue);
+    }
     await speak(item.text, "en", "slow");
   }
 
-  async function playSplit(item, rounds = 2) {
+  async function playSplit(item, rounds = 2, opts = {}) {
     if ((item.kind || "word") === "sentence") return;
+    const announce = opts.announce !== false;
     const chunks = chunksFor(item);
     for (let r = 0; r < rounds; r++) {
       if (state.abort) return;
       setPhase(r === 0 ? "拆开读" : "再拆一次");
-      await speak(r === 0 ? "拆开读。" : "再拆一次。", "zh");
-      if (state.abort) return;
-      await waitMs(280);
+      if (announce) {
+        await speak(r === 0 ? "拆开读。" : "再拆一次。", "zh");
+        if (state.abort) return;
+        await waitMs(GAP.afterCue);
+      }
       // Chunks are visual teaching hints. Audio remains one continuous slowed
       // whole word, so a fragment such as "s" is never pronounced as "ess".
       renderSplit(chunks, -1);
       await speak(item.text, "en", "slow");
       renderSplit(chunks, -1);
-      await waitMs(480);
+      if (r < rounds - 1) await waitMs(GAP.afterSplit);
     }
   }
 
-  async function playFast(item) {
+  async function playFast(item, opts = {}) {
+    const announce = opts.announce !== false;
     setPhase("正常读");
-    await speak("正常读。", "zh");
-    if (state.abort) return;
-    await waitMs(180);
+    if (announce) {
+      await speak("正常读。", "zh");
+      if (state.abort) return;
+      await waitMs(GAP.afterCue);
+    }
     await speak(item.text, "en");
   }
 
+  async function teachItem(item) {
+    setPhase("跟我读");
+    await speak("跟我读。", "zh");
+    if (state.abort) return;
+    await waitMs(GAP.afterCue);
+    // Continuous teach: skip Chinese phase cues — badge shows 慢读/拆开/正常读.
+    await playSlow(item, { announce: false });
+    if (state.abort) return;
+    await waitMs(GAP.betweenPhases);
+    if ((item.kind || "word") !== "sentence") {
+      await playSplit(item, 2, { announce: false });
+      if (state.abort) return;
+      await waitMs(GAP.betweenPhases);
+    }
+    await playFast(item, { announce: false });
+  }
+
   async function teachOnce() {
-    const item = state.items[state.index];
-    if (!item || state.running) return;
+    if (state.running) return;
     state.abort = false;
     state.running = true;
     syncButtons();
     try {
-      setPhase("跟我读");
-      await speak("跟我读。", "zh");
-      if (state.abort) return;
-      await waitMs(200);
-      await playSlow(item);
-      if (state.abort) return;
-      if ((item.kind || "word") !== "sentence") {
-        await playSplit(item, 2);
-        if (state.abort) return;
+      while (!state.abort) {
+        const item = state.items[state.index];
+        if (!item) break;
+        await teachItem(item);
+        if (state.abort) break;
+        const canAuto =
+          state.autoNext && state.index < state.items.length - 1;
+        if (!canAuto) {
+          setPhase(
+            state.autoNext
+              ? "本课练完了"
+              : "这一条练完了 · 可再教或下一条"
+          );
+          break;
+        }
+        setPhase("自动下一条…");
+        await waitMs(GAP.beforeAutoNext);
+        if (state.abort) break;
+        state.index += 1;
+        renderItem();
       }
-      await playFast(item);
-      if (!state.abort) setPhase("这一条练完了 · 可再教或下一条");
     } finally {
       state.running = false;
       syncButtons();
@@ -465,7 +509,32 @@
     }
   }
 
+  function loadAutoNext() {
+    try {
+      return localStorage.getItem(AUTO_NEXT_KEY) === "1";
+    } catch {
+      return false;
+    }
+  }
+
+  function saveAutoNext(on) {
+    try {
+      localStorage.setItem(AUTO_NEXT_KEY, on ? "1" : "0");
+    } catch {
+      /* ignore */
+    }
+  }
+
   function bind() {
+    const chk = $("chkAutoNext");
+    state.autoNext = loadAutoNext();
+    if (chk) {
+      chk.checked = state.autoNext;
+      chk.addEventListener("change", () => {
+        state.autoNext = !!chk.checked;
+        saveAutoNext(state.autoNext);
+      });
+    }
     $("btnTeach").addEventListener("click", () => teachOnce());
     $("btnReplayTeach").addEventListener("click", () => teachOnce());
     $("btnSlow").addEventListener("click", () => runStep(playSlow));

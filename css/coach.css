@@ -6,6 +6,22 @@
 .coach-main {
   grid-template-columns: 1.4fr 0.8fr;
 }
+.opt-toggle {
+  display: flex;
+  align-items: center;
+  gap: 8px;
+  margin: 10px 0 0;
+  font-size: 0.95rem;
+  font-weight: 700;
+  color: var(--ink);
+  cursor: pointer;
+  user-select: none;
+}
+.opt-toggle input {
+  width: 1.15rem;
+  height: 1.15rem;
+  accent-color: var(--accent);
+}
 .coach-steps {
   margin-top: 10px;
   grid-template-columns: 1fr 1fr;
