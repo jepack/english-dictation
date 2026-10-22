@@ -34,11 +34,18 @@
   }
 
   function manifestPath(text, lang, variant = "normal") {
-    const suffix = variant === "slow" ? "-slow" : "";
-    const k = `${langKey(lang)}${suffix}|${text}`;
-    // While the background migration is running, use the normal whole phrase
-    // if its continuous slow counterpart is not ready yet.
-    return state.audioManifest[k] || state.audioManifest[`${langKey(lang)}|${text}`] || null;
+    const base = langKey(lang);
+    const suffix =
+      variant === "slow" ? "-slow" : variant === "fast" ? "-fast" : "";
+    const k = `${base}${suffix}|${text}`;
+    // Prefer exact variant; fall back to normal whole phrase while migrating.
+    return state.audioManifest[k] || state.audioManifest[`${base}|${text}`] || null;
+  }
+
+  /** Short echo window after model audio so the child can follow (小间隔自动等). */
+  function echoWaitMs(text) {
+    const letters = String(text || "").replace(/[^A-Za-z]/g, "").length;
+    return Math.min(1000, Math.max(320, 260 + letters * 38));
   }
 
   function onlineTtsUrl(text, lang) {
@@ -186,6 +193,28 @@
       .replace(/"/g, "&quot;");
   }
 
+  function renderPageImage(item) {
+    const shot = $("pageShot");
+    const img = $("pageImage");
+    const cap = $("pageCaption");
+    if (!shot || !img) return;
+    const src = (item && (item.pageImage || item.image)) || "";
+    const page = item && item.page;
+    if (!src) {
+      shot.hidden = true;
+      img.removeAttribute("src");
+      if (cap) cap.textContent = "";
+      return;
+    }
+    shot.hidden = false;
+    if (img.getAttribute("src") !== src) img.src = src;
+    if (cap) {
+      cap.textContent = page
+        ? `课本对照 · 第 ${page} 页`
+        : "课本对照";
+    }
+  }
+
   function renderItem() {
     const item = state.items[state.index];
     if (!item) return;
@@ -195,14 +224,14 @@
     $("bar").style.width = `${((state.index + 1) / Math.max(1, n)) * 100}%`;
     $("display").textContent = item.text || "";
     $("kindLabel").textContent = isSentence ? "句子" : "单词";
+    renderPageImage(item);
 
     const chunks = isSentence ? [] : chunksFor(item);
     renderSplit(chunks, -1);
     $("btnSplit").hidden = isSentence;
-    $("btnFast").textContent = "正常读";
     $("hint").textContent = isSentence
-      ? "顺序：慢读整句一次 → 正常读整句一次。句子不拆开读。"
-      : "顺序：先慢读整词 → 按音节或音素拆开读两遍 → 再正常读。";
+      ? "顺序：慢读 → 正常读 → 快读。句子不拆开读。"
+      : "顺序：慢读 → 拆开读两遍 → 正常读 → 快读。";
 
     const stress = (item.stressNote || "").trim();
     $("stressLine").hidden = !stress;
@@ -319,8 +348,16 @@
   function syncButtons() {
     const has = state.items.length > 0 && state.view === "play";
     const busy = state.running;
-    ["btnTeach", "btnSlow", "btnSplit", "btnFast", "btnReplayTeach", "btnPrev", "btnNext"].forEach(
-      (id) => {
+    [
+      "btnTeach",
+      "btnSlow",
+      "btnSplit",
+      "btnNormal",
+      "btnFast",
+      "btnReplayTeach",
+      "btnPrev",
+      "btnNext",
+    ].forEach((id) => {
         const el = $(id);
         if (!el) return;
         if (id === "btnStop") return;
@@ -341,6 +378,7 @@
 
   async function playSlow(item, opts = {}) {
     const announce = opts.announce !== false;
+    const echo = opts.echo !== false;
     setPhase("慢读");
     if (announce) {
       await speak("慢读。", "zh");
@@ -348,11 +386,13 @@
       await waitMs(GAP.afterCue);
     }
     await speak(item.text, "en", "slow");
+    if (echo && !state.abort) await waitMs(echoWaitMs(item.text));
   }
 
   async function playSplit(item, rounds = 2, opts = {}) {
     if ((item.kind || "word") === "sentence") return;
     const announce = opts.announce !== false;
+    const echo = opts.echo !== false;
     const chunks = chunksFor(item);
     for (let r = 0; r < rounds; r++) {
       if (state.abort) return;
@@ -367,12 +407,14 @@
       renderSplit(chunks, -1);
       await speak(item.text, "en", "slow");
       renderSplit(chunks, -1);
+      if (echo && !state.abort) await waitMs(echoWaitMs(item.text));
       if (r < rounds - 1) await waitMs(GAP.afterSplit);
     }
   }
 
-  async function playFast(item, opts = {}) {
+  async function playNormal(item, opts = {}) {
     const announce = opts.announce !== false;
+    const echo = opts.echo !== false;
     setPhase("正常读");
     if (announce) {
       await speak("正常读。", "zh");
@@ -380,6 +422,20 @@
       await waitMs(GAP.afterCue);
     }
     await speak(item.text, "en");
+    if (echo && !state.abort) await waitMs(echoWaitMs(item.text));
+  }
+
+  async function playFast(item, opts = {}) {
+    const announce = opts.announce !== false;
+    const echo = opts.echo !== false;
+    setPhase("快读");
+    if (announce) {
+      await speak("快读。", "zh");
+      if (state.abort) return;
+      await waitMs(GAP.afterCue);
+    }
+    await speak(item.text, "en", "fast");
+    if (echo && !state.abort) await waitMs(echoWaitMs(item.text));
   }
 
   async function teachItem(item) {
@@ -387,7 +443,8 @@
     await speak("跟我读。", "zh");
     if (state.abort) return;
     await waitMs(GAP.afterCue);
-    // Continuous teach: skip Chinese phase cues — badge shows 慢读/拆开/正常读.
+    // Continuous teach: skip Chinese phase cues — badge shows 慢读/拆开/正常读/快读.
+    // Keep phase gaps tight; echoWait after each English clip is the short auto-wait.
     await playSlow(item, { announce: false });
     if (state.abort) return;
     await waitMs(GAP.betweenPhases);
@@ -396,6 +453,9 @@
       if (state.abort) return;
       await waitMs(GAP.betweenPhases);
     }
+    await playNormal(item, { announce: false });
+    if (state.abort) return;
+    await waitMs(GAP.betweenPhases);
     await playFast(item, { announce: false });
   }
 
@@ -539,6 +599,7 @@
     $("btnReplayTeach").addEventListener("click", () => teachOnce());
     $("btnSlow").addEventListener("click", () => runStep(playSlow));
     $("btnSplit").addEventListener("click", () => runStep((it) => playSplit(it, 2)));
+    $("btnNormal").addEventListener("click", () => runStep(playNormal));
     $("btnFast").addEventListener("click", () => runStep(playFast));
     $("btnStop").addEventListener("click", () => {
       stopSpeech();

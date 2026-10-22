@@ -92,6 +92,68 @@ header.app-header p {
   padding: 16px;
 }
 
+.hub-list {
+  display: grid;
+  gap: 14px;
+  margin-top: 18px;
+}
+.hub-card {
+  display: block;
+  border-radius: calc(var(--radius) + 4px);
+  padding: 22px 18px 20px;
+  color: inherit;
+  text-decoration: none;
+  border: 1px solid transparent;
+  box-shadow: var(--shadow);
+  transition: transform 0.14s ease, box-shadow 0.14s ease;
+  min-height: 132px;
+}
+.hub-card:hover {
+  transform: translateY(-2px);
+  text-decoration: none;
+  box-shadow: 0 14px 32px rgba(26, 42, 40, 0.12);
+}
+.hub-card.hub-warm {
+  background:
+    linear-gradient(145deg, #fff8ef 0%, #ffe8c8 55%, #f5d7a4 100%);
+  border-color: #efd2a0;
+}
+.hub-card.hub-teal {
+  background:
+    linear-gradient(145deg, #eef8f5 0%, #d5efe8 55%, #bfe4db 100%);
+  border-color: #9fd0c8;
+}
+.hub-card .hub-kicker {
+  margin: 0 0 8px;
+  font-size: 0.8rem;
+  font-weight: 700;
+  letter-spacing: 0.06em;
+  text-transform: uppercase;
+  color: var(--muted);
+}
+.hub-card h2 {
+  margin: 0 0 8px;
+  font-size: clamp(1.35rem, 4vw, 1.65rem);
+}
+.hub-card .hub-sub {
+  margin: 0 0 10px;
+  font-weight: 600;
+  color: var(--accent-deep);
+}
+.hub-card .hub-desc {
+  margin: 0;
+  color: var(--muted);
+  line-height: 1.5;
+  font-size: 0.95rem;
+}
+.hub-card .hub-count {
+  display: inline-block;
+  margin-top: 14px;
+  font-size: 0.85rem;
+  font-weight: 700;
+  color: var(--ink);
+}
+
 .card-list {
   display: grid;
   gap: 12px;

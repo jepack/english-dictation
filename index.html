@@ -5,34 +5,51 @@
   <meta name="viewport" content="width=device-width, initial-scale=1, viewport-fit=cover" />
   <meta name="apple-mobile-web-app-capable" content="yes" />
   <meta name="mobile-web-app-capable" content="yes" />
-  <title>英语听写站</title>
+  <title>三年级英语听力</title>
   <link rel="stylesheet" href="./css/styles.css" />
 </head>
 <body>
   <div class="wrap">
     <header class="app-header">
-      <h1 id="site-title">英语听写站</h1>
-      <p id="site-sub">手机点控 · 可加题 · 可复习</p>
+      <h1 id="site-title">三年级英语听力</h1>
+      <p id="site-sub">日常磨耳朵 · 考试听力 · 手机点控</p>
       <div class="nav-tabs" role="tablist">
-        <button type="button" data-view="home" class="active">听写</button>
+        <button type="button" data-view="home" class="active">首页</button>
+        <button type="button" data-view="dictation">听写</button>
         <button type="button" data-view="review">复习</button>
         <a class="nav-tab-link" href="./coach.html">点读</a>
       </div>
     </header>
 
-    <!-- 首页：听写列表 -->
+    <!-- 首页：两大听力入口 -->
     <section id="view-home">
+      <div id="hub-list" class="hub-list"></div>
+      <p class="footer-note">
+        听力分两大入口：日常磨耳朵、考试听力（不按课本仿制）。
+        听写练习在「听写」页；课本跟读用 <a href="./coach.html">点读</a>。
+      </p>
+    </section>
+
+    <!-- 某大类下的套题列表 -->
+    <section id="view-hub" hidden>
+      <a class="back" id="hub-back" href="#/">← 返回首页</a>
+      <h2 id="hub-title" style="margin:8px 0 4px;font-size:1.25rem;"></h2>
+      <p id="hub-desc" class="hint" style="margin:0 0 8px;"></p>
+      <div id="hub-card-list" class="card-list"></div>
+    </section>
+
+    <!-- 听写练习列表（原听写站） -->
+    <section id="view-dictation" hidden>
       <div id="card-list" class="card-list"></div>
       <p class="footer-note">
-        以后新听写只需往 <code>data/dictations.json</code> 加一套题，刷新网站即可出现。
-        课本跟读请用 <a href="./coach.html">点读</a>（慢读 → 拆分 → 快读）。
+        听写套题在 <code>data/dictations.json</code>（字段 <code>hub: dictation</code>）。
         手机把本站加到主屏幕更方便。
       </p>
     </section>
 
     <!-- 播放页 -->
     <section id="view-play" hidden>
-      <a class="back" href="#/">← 返回列表</a>
+      <a class="back" id="play-back" href="#/">← 返回</a>
       <h2 id="play-title" style="margin:0 0 8px;font-size:1.25rem;"></h2>
 
       <div class="panel">

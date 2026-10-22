@@ -34,6 +34,7 @@ MANIFEST = AUDIO_DIR / "manifest.json"
 SERVICE_URL = "http://127.0.0.1:8776/v1/tts"
 ENGINE_VERSION = "edge-jenny-en-indextts2-zh-v1"
 SLOW_RATE = 0.62
+FAST_RATE = 1.18
 EN_VOICE = "en-US-JennyNeural"
 EN_RATE = "-5%"
 
@@ -61,20 +62,27 @@ FIXED = [
     ("zh", "拆开读。"),
     ("zh", "再拆一次。"),
     ("zh", "正常读。"),
+    ("zh", "快读。"),
     ("zh", "跟我读。"),
 ]
 
 
 def key(lang: str, text: str, variant: str = "normal") -> str:
-    suffix = "-slow" if variant == "slow" else ""
-    return f"{lang}{suffix}|{text}"
+    if variant == "slow":
+        return f"{lang}-slow|{text}"
+    if variant == "fast":
+        return f"{lang}-fast|{text}"
+    return f"{lang}|{text}"
 
 
 def file_stem(lang: str, text: str, variant: str = "normal") -> str:
     profile = f"{ENGINE_VERSION}|{variant}|{key(lang, text)}"
     digest = hashlib.sha256(profile.encode("utf-8")).hexdigest()[:16]
-    suffix = "_slow" if variant == "slow" else ""
-    return f"{lang}{suffix}_{digest}"
+    if variant == "slow":
+        return f"{lang}_slow_{digest}"
+    if variant == "fast":
+        return f"{lang}_fast_{digest}"
+    return f"{lang}_{digest}"
 
 
 def collect_phrases() -> list[tuple[str, str]]:
@@ -205,15 +213,22 @@ def request_wav(lang: str, text: str, scratch: Path) -> Path:
     return request_indextts_wav(text)
 
 
-def encode_mp3(source: Path, destination: Path, slow: bool = False) -> None:
+def encode_mp3(source: Path, destination: Path, tempo: float | None = None) -> None:
     destination.parent.mkdir(parents=True, exist_ok=True)
     part = destination.with_suffix(".part.mp3")
     cmd = [FFMPEG, "-y", "-hide_banner", "-loglevel", "error", "-i", str(source)]
-    if slow:
-        cmd += [
-            "-af",
-            f"aresample=44100:resampler=soxr:precision=28,atempo={SLOW_RATE},lowpass=f=9800,alimiter=limit=0.9",
-        ]
+    if tempo is not None and abs(tempo - 1.0) > 0.001:
+        # atempo only accepts 0.5–2.0; chain if we ever go outside.
+        rate = tempo
+        filters = ["aresample=44100:resampler=soxr:precision=28"]
+        while rate < 0.5 or rate > 2.0:
+            step = 0.5 if rate < 0.5 else 2.0
+            filters.append(f"atempo={step}")
+            rate /= step
+        filters.append(f"atempo={rate:.4f}")
+        filters.append("lowpass=f=9800")
+        filters.append("alimiter=limit=0.9")
+        cmd += ["-af", ",".join(filters)]
     cmd += ["-codec:a", "libmp3lame", "-q:a", "3", str(part)]
     subprocess.run(cmd, check=True)
     if not part.exists() or part.stat().st_size < 500:
@@ -258,23 +273,29 @@ def main() -> None:
         normal_path = ROOT / normal_rel
         slow_rel = f"audio/{file_stem(lang, text, 'slow')}.mp3"
         slow_path = ROOT / slow_rel
+        fast_rel = f"audio/{file_stem(lang, text, 'fast')}.mp3"
+        fast_path = ROOT / fast_rel
         need_normal = not normal_path.exists() or normal_path.stat().st_size < 500
         need_slow = lang == "en" and (not slow_path.exists() or slow_path.stat().st_size < 500)
+        need_fast = lang == "en" and (not fast_path.exists() or fast_path.stat().st_size < 500)
 
         print(f"[{index}/{len(phrases)}] {lang} {text!r}", flush=True)
-        if need_normal or need_slow:
+        if need_normal or need_slow or need_fast:
             with tempfile.TemporaryDirectory(prefix="dictation-tts-") as tmp:
                 wav = request_wav(lang, text, Path(tmp))
                 if need_normal:
                     encode_mp3(wav, normal_path)
                 if need_slow:
-                    encode_mp3(wav, slow_path, slow=True)
+                    encode_mp3(wav, slow_path, tempo=SLOW_RATE)
+                if need_fast:
+                    encode_mp3(wav, fast_path, tempo=FAST_RATE)
             made += 1
 
         # Publish every completed phrase, allowing safe resumable migration.
         manifest[key(lang, text)] = normal_rel
         if lang == "en":
             manifest[key(lang, text, "slow")] = slow_rel
+            manifest[key(lang, text, "fast")] = fast_rel
         atomic_manifest(manifest)
 
     print(f"done: {len(phrases)} selected, {made} newly generated; engine={ENGINE_VERSION}")

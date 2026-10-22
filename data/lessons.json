@@ -12,7 +12,7 @@
         "点读"
       ],
       "note": "教读：慢读 → 拆分两次 → 快读",
-      "sourceNote": "译林英语三上 Unit1（课本放映图 p.8–15）",
+      "sourceNote": "译林英语三上 Unit1（课本放映图 p.8–15，页面对应展示）",
       "items": [
         {
           "id": "i1",
@@ -25,7 +25,9 @@
           "stressNote": "重音在 HEL",
           "tipsZh": "常见打招呼",
           "grammarZh": "",
-          "corrections": []
+          "corrections": [],
+          "page": 8,
+          "pageImage": "images/yilin-g3u1/p08.jpg"
         },
         {
           "id": "i2",
@@ -37,7 +39,9 @@
           "stressNote": "单音节",
           "tipsZh": "比 Hello 更随便",
           "grammarZh": "",
-          "corrections": []
+          "corrections": [],
+          "page": 8,
+          "pageImage": "images/yilin-g3u1/p08.jpg"
         },
         {
           "id": "i3",
@@ -49,7 +53,9 @@
           "stressNote": "单音节",
           "tipsZh": "Goodbye 的短说法",
           "grammarZh": "",
-          "corrections": []
+          "corrections": [],
+          "page": 14,
+          "pageImage": "images/yilin-g3u1/p14.jpg"
         },
         {
           "id": "i4",
@@ -62,7 +68,9 @@
           "stressNote": "重音在 BYE",
           "tipsZh": "分手时说",
           "grammarZh": "",
-          "corrections": []
+          "corrections": [],
+          "page": 14,
+          "pageImage": "images/yilin-g3u1/p14.jpg"
         },
         {
           "id": "i5",
@@ -75,7 +83,9 @@
           "stressNote": "重音在 MOR",
           "tipsZh": "早上",
           "grammarZh": "",
-          "corrections": []
+          "corrections": [],
+          "page": 8,
+          "pageImage": "images/yilin-g3u1/p08.jpg"
         },
         {
           "id": "i6",
@@ -89,7 +99,9 @@
           "stressNote": "重音在 NOON",
           "tipsZh": "下午",
           "grammarZh": "",
-          "corrections": []
+          "corrections": [],
+          "page": 13,
+          "pageImage": "images/yilin-g3u1/p13.jpg"
         },
         {
           "id": "i7",
@@ -102,7 +114,9 @@
           "stressNote": "重音在 TEA",
           "tipsZh": "老师",
           "grammarZh": "",
-          "corrections": []
+          "corrections": [],
+          "page": 8,
+          "pageImage": "images/yilin-g3u1/p08.jpg"
         },
         {
           "id": "i8",
@@ -114,7 +128,9 @@
           "stressNote": "单音节",
           "tipsZh": "朋友",
           "grammarZh": "",
-          "corrections": []
+          "corrections": [],
+          "page": 8,
+          "pageImage": "images/yilin-g3u1/p08.jpg"
         },
         {
           "id": "i9",
@@ -126,7 +142,9 @@
           "stressNote": "单音节",
           "tipsZh": "/klæs/ 全班",
           "grammarZh": "",
-          "corrections": []
+          "corrections": [],
+          "page": 13,
+          "pageImage": "images/yilin-g3u1/p13.jpg"
         },
         {
           "id": "i10",
@@ -138,7 +156,9 @@
           "stressNote": "单音节",
           "tipsZh": "未婚女老师称呼，如 Miss Li",
           "grammarZh": "",
-          "corrections": []
+          "corrections": [],
+          "page": 12,
+          "pageImage": "images/yilin-g3u1/p12.jpg"
         },
         {
           "id": "i11",
@@ -150,7 +170,9 @@
           "stressNote": "缩写",
           "tipsZh": "= I am，自我介绍常用",
           "grammarZh": "",
-          "corrections": []
+          "corrections": [],
+          "page": 12,
+          "pageImage": "images/yilin-g3u1/p12.jpg"
         },
         {
           "id": "i12",
@@ -163,7 +185,9 @@
           "stressNote": "Good + MOR-ning",
           "tipsZh": "早上见面说",
           "grammarZh": "时间：morning",
-          "corrections": []
+          "corrections": [],
+          "page": 8,
+          "pageImage": "images/yilin-g3u1/p08.jpg"
         },
         {
           "id": "i13",
@@ -178,7 +202,9 @@
           "stressNote": "Miss Li 略重",
           "tipsZh": "对老师要加 Miss/Mr + 姓",
           "grammarZh": "礼貌问候老师",
-          "corrections": []
+          "corrections": [],
+          "page": 12,
+          "pageImage": "images/yilin-g3u1/p12.jpg"
         },
         {
           "id": "i14",
@@ -193,7 +219,9 @@
           "stressNote": "名字略重",
           "tipsZh": "同学之间也可说 Good morning",
           "grammarZh": "同学问候",
-          "corrections": []
+          "corrections": [],
+          "page": 12,
+          "pageImage": "images/yilin-g3u1/p12.jpg"
         },
         {
           "id": "i15",
@@ -207,7 +235,9 @@
           "stressNote": "Hi 短促",
           "tipsZh": "同学之间用 Hi / Hello",
           "grammarZh": "非正式",
-          "corrections": []
+          "corrections": [],
+          "page": 12,
+          "pageImage": "images/yilin-g3u1/p12.jpg"
         },
         {
           "id": "i16",
@@ -222,7 +252,9 @@
           "stressNote": "Hello 略重",
           "tipsZh": "Hello 比 Hi 稍正式一点",
           "grammarZh": "",
-          "corrections": []
+          "corrections": [],
+          "page": 8,
+          "pageImage": "images/yilin-g3u1/p08.jpg"
         },
         {
           "id": "i17",
@@ -239,7 +271,9 @@
           "stressNote": "af-ter-NOON",
           "tipsZh": "下午见老师",
           "grammarZh": "时间：afternoon",
-          "corrections": []
+          "corrections": [],
+          "page": 13,
+          "pageImage": "images/yilin-g3u1/p13.jpg"
         },
         {
           "id": "i18",
@@ -255,7 +289,9 @@
           "stressNote": "class 略重",
           "tipsZh": "老师对全班说",
           "grammarZh": "class=全班同学",
-          "corrections": []
+          "corrections": [],
+          "page": 13,
+          "pageImage": "images/yilin-g3u1/p13.jpg"
         },
         {
           "id": "i19",
@@ -270,7 +306,9 @@
           "stressNote": "BYE 略重",
           "tipsZh": "放学分手",
           "grammarZh": "道别",
-          "corrections": []
+          "corrections": [],
+          "page": 14,
+          "pageImage": "images/yilin-g3u1/p14.jpg"
         },
         {
           "id": "i20",
@@ -282,7 +320,9 @@
           "stressNote": "短促有力",
           "tipsZh": "更口语的再见",
           "grammarZh": "",
-          "corrections": []
+          "corrections": [],
+          "page": 14,
+          "pageImage": "images/yilin-g3u1/p14.jpg"
         },
         {
           "id": "i21",
@@ -296,7 +336,9 @@
           "stressNote": "I'm / Sam",
           "tipsZh": "I'm = I am",
           "grammarZh": "自我介绍",
-          "corrections": []
+          "corrections": [],
+          "page": 12,
+          "pageImage": "images/yilin-g3u1/p12.jpg"
         },
         {
           "id": "i22",
@@ -310,7 +352,9 @@
           "stressNote": "I'm / Bob-by",
           "tipsZh": "跟读：Hi, I'm + 名字",
           "grammarZh": "自我介绍",
-          "corrections": []
+          "corrections": [],
+          "page": 12,
+          "pageImage": "images/yilin-g3u1/p12.jpg"
         },
         {
           "id": "i23",
@@ -326,7 +370,9 @@
           "stressNote": "tea-cher",
           "tipsZh": "儿歌里的短说法",
           "grammarZh": "chant",
-          "corrections": []
+          "corrections": [],
+          "page": 8,
+          "pageImage": "images/yilin-g3u1/p08.jpg"
         },
         {
           "id": "i24",
@@ -341,7 +387,9 @@
           "stressNote": "friend",
           "tipsZh": "儿歌里对朋友说",
           "grammarZh": "chant",
-          "corrections": []
+          "corrections": [],
+          "page": 8,
+          "pageImage": "images/yilin-g3u1/p08.jpg"
         },
         {
           "id": "i25",
@@ -358,7 +406,9 @@
           "stressNote": "GREET / PEO-ple",
           "tipsZh": "本单元大问题：你怎么跟人打招呼？",
           "grammarZh": "Big question",
-          "corrections": []
+          "corrections": [],
+          "page": 9,
+          "pageImage": "images/yilin-g3u1/p09.jpg"
         }
       ]
     },

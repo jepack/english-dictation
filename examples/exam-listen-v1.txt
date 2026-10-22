@@ -1,0 +1,16 @@
+# 听选关键词
+Good afternoon.|正确答案：afternoon（下午好，不是 morning）
+My name is Lucy.|正确答案：Lucy
+I have a blue bag.|正确答案：blue
+He's my friend.|正确答案：friend
+
+# 听选应答
+How are you?|应答：I'm fine, thank you.
+Nice to meet you.|应答：Nice to meet you too.
+What class are you in?|应答：I'm in Class One.
+Goodbye.|应答：Goodbye.
+
+# 听辨对错
+It's a cat.|判断：对（是一只猫）
+It's a dog.|判断：听成 cat 就算错；本句是 dog
+I am nine.|判断：对（九岁）

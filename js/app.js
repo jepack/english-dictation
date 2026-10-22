@@ -5,7 +5,8 @@
   const state = {
     data: null,
     audioManifest: {},
-    view: "home", // home | play | review
+    view: "home", // home | hub | dictation | play | review
+    currentHub: null,
     currentId: null,
     items: [],
     index: -1,
@@ -14,6 +15,11 @@
     autoTimer: null,
     reviewWrongOnly: false,
     currentAudio: null,
+  };
+
+  const HUB_META = {
+    ear: { title: "日常磨耳朵", subtitle: "生活场景听力，不仿课本" },
+    exam: { title: "考试听力", subtitle: "江苏真卷题型专项" },
   };
 
   const $ = (id) => document.getElementById(id);
@@ -188,19 +194,27 @@
   function setView(view) {
     state.view = view;
     $("view-home").hidden = view !== "home";
+    $("view-hub").hidden = view !== "hub";
+    $("view-dictation").hidden = view !== "dictation";
     $("view-play").hidden = view !== "play";
     $("view-review").hidden = view !== "review";
+    const navView = view === "hub" ? "home" : view;
     document.querySelectorAll(".nav-tabs button").forEach((btn) => {
-      btn.classList.toggle("active", btn.dataset.view === view);
+      btn.classList.toggle("active", btn.dataset.view === navView);
     });
   }
 
-  function renderHome() {
-    const list = $("card-list");
-    list.innerHTML = "";
-    const dicts = state.data.dictations.slice().sort((a, b) => (a.date < b.date ? 1 : -1));
+  function packsForHub(hubId) {
+    return (state.data.dictations || [])
+      .filter((d) => (d.hub || "dictation") === hubId)
+      .slice()
+      .sort((a, b) => (a.date < b.date ? 1 : -1));
+  }
+
+  function renderPackCards(container, dicts, emptyHtml) {
+    container.innerHTML = "";
     if (!dicts.length) {
-      list.innerHTML = `<div class="empty">还没有听写。把新题加到 <code>data/dictations.json</code> 即可。</div>`;
+      container.innerHTML = emptyHtml;
       return;
     }
     for (const d of dicts) {
@@ -214,8 +228,55 @@
         </div>
         <div class="tags">${(d.tags || []).map((t) => `<span class="tag">${escapeHtml(t)}</span>`).join("")}</div>
       `;
+      container.appendChild(a);
+    }
+  }
+
+  function renderHome() {
+    const list = $("hub-list");
+    list.innerHTML = "";
+    const hubs = state.data.hubs || [
+      { id: "ear", title: HUB_META.ear.title, subtitle: HUB_META.ear.subtitle, desc: "", accent: "warm" },
+      { id: "exam", title: HUB_META.exam.title, subtitle: HUB_META.exam.subtitle, desc: "", accent: "teal" },
+    ];
+    for (const h of hubs) {
+      const n = packsForHub(h.id).length;
+      const a = document.createElement("a");
+      a.className = `hub-card hub-${h.accent === "warm" ? "warm" : "teal"}`;
+      a.href = `#/hub/${encodeURIComponent(h.id)}`;
+      a.innerHTML = `
+        <p class="hub-kicker">${h.id === "ear" ? "Daily listening" : "Exam listening"}</p>
+        <h2>${escapeHtml(h.title)}</h2>
+        <p class="hub-sub">${escapeHtml(h.subtitle || "")}</p>
+        <p class="hub-desc">${escapeHtml(h.desc || "")}</p>
+        <span class="hub-count">${n ? `${n} 套可练` : "内容准备中"}</span>
+      `;
       list.appendChild(a);
     }
+  }
+
+  function renderHub(hubId) {
+    state.currentHub = hubId;
+    const hub =
+      (state.data.hubs || []).find((h) => h.id === hubId) ||
+      { id: hubId, ...(HUB_META[hubId] || { title: hubId, subtitle: "" }), desc: "" };
+    $("hub-title").textContent = hub.title || hubId;
+    $("hub-desc").textContent = hub.desc || hub.subtitle || "";
+    const empty =
+      hubId === "ear"
+        ? `<div class="empty">日常磨耳朵套题即将上线（剑桥 Starters 等权威材料取向，不仿课本）。</div>`
+        : hubId === "exam"
+          ? `<div class="empty">考试听力套题即将上线（江苏真卷题型：听选 / 排序 / 判断 / 应答）。</div>`
+          : `<div class="empty">这个分类还没有套题。</div>`;
+    renderPackCards($("hub-card-list"), packsForHub(hubId), empty);
+  }
+
+  function renderDictationList() {
+    renderPackCards(
+      $("card-list"),
+      packsForHub("dictation"),
+      `<div class="empty">还没有听写。把新题加到 <code>data/dictations.json</code>，并设 <code>hub: "dictation"</code>。</div>`
+    );
   }
 
   function renderReviewHome() {
@@ -372,6 +433,17 @@
     clearAuto();
     stopSpeech();
     setView("play");
+    const back = $("play-back");
+    if (state.currentHub && (state.currentHub === "ear" || state.currentHub === "exam")) {
+      back.href = `#/hub/${encodeURIComponent(state.currentHub)}`;
+      back.textContent = "← 返回分类";
+    } else if (id === "review-wrong" || id === "review-all") {
+      back.href = "#/review";
+      back.textContent = "← 返回复习";
+    } else {
+      back.href = "#/dictation";
+      back.textContent = "← 返回听写";
+    }
     $("play-title").textContent = title;
     $("badge").textContent = "准备就绪";
     $("prompt").textContent = "点「开始听写」——你控制什么时候开始";
@@ -395,11 +467,29 @@
     const hash = location.hash || "#/";
     const parts = hash.replace(/^#\/?/, "").split("/").filter(Boolean);
     if (!parts.length || parts[0] === "home") {
+      state.currentHub = null;
       setView("home");
       renderHome();
       return;
     }
+    if (parts[0] === "hub" && parts[1]) {
+      const hubId = decodeURIComponent(parts[1]);
+      if (hubId !== "ear" && hubId !== "exam") {
+        location.hash = "#/";
+        return;
+      }
+      setView("hub");
+      renderHub(hubId);
+      return;
+    }
+    if (parts[0] === "dictation") {
+      state.currentHub = "dictation";
+      setView("dictation");
+      renderDictationList();
+      return;
+    }
     if (parts[0] === "review") {
+      state.currentHub = null;
       setView("review");
       renderReviewHome();
       return;
@@ -410,6 +500,9 @@
       if (!d) {
         location.hash = "#/";
         return;
+      }
+      if (!state.currentHub) {
+        state.currentHub = d.hub || "dictation";
       }
       openPlay(
         d.id,
@@ -431,6 +524,7 @@
         return;
       }
       $("review-empty").hidden = true;
+      state.currentHub = null;
       openPlay(
         wrongOnly ? "review-wrong" : "review-all",
         items,
@@ -446,6 +540,7 @@
       btn.addEventListener("click", () => {
         const v = btn.dataset.view;
         if (v === "home") location.hash = "#/";
+        if (v === "dictation") location.hash = "#/dictation";
         if (v === "review") location.hash = "#/review";
       });
     });
@@ -514,13 +609,16 @@
     if (manRes && manRes.ok) {
       state.audioManifest = await manRes.json();
     }
-    $("site-title").textContent = state.data.siteTitle || "英语听写站";
+    $("site-title").textContent = state.data.siteTitle || "三年级英语听力";
     $("site-sub").textContent = state.data.siteSubtitle || "";
     route();
   }
 
   init().catch((err) => {
     console.error(err);
-    $("card-list").innerHTML = `<div class="empty">加载失败：请用网站方式打开（不要直接双击本地文件时若被拦，请用 GitHub Pages 链接）。</div>`;
+    const el = $("hub-list") || $("card-list");
+    if (el) {
+      el.innerHTML = `<div class="empty">加载失败：请用网站方式打开（不要直接双击本地文件时若被拦，请用 GitHub Pages 链接）。</div>`;
+    }
   });
 })();

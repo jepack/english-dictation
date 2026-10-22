@@ -30,6 +30,29 @@
   .coach-steps { grid-template-columns: repeat(4, 1fr); }
 }
 
+.page-shot {
+  margin: 0 0 12px;
+  border-radius: 14px;
+  overflow: hidden;
+  border: 1px solid var(--line);
+  background: #f3f7f6;
+  box-shadow: var(--shadow);
+}
+.page-shot img {
+  display: block;
+  width: 100%;
+  max-height: min(42vh, 420px);
+  object-fit: contain;
+  background: #e8efed;
+}
+.page-shot figcaption {
+  padding: 8px 12px;
+  font-size: 0.88rem;
+  font-weight: 700;
+  color: var(--accent-deep);
+  border-top: 1px solid var(--line);
+}
+
 .split-line {
   margin: 12px 0 0;
   font-family: var(--font-en);

@@ -1,8 +1,176 @@
 {
   "version": 1,
-  "siteTitle": "英语听写站",
-  "siteSubtitle": "手机点控 · 可加题 · 可复习",
+  "siteTitle": "三年级英语听力",
+  "siteSubtitle": "日常磨耳朵 · 考试听力 · 手机点控",
   "dictations": [
+    {
+      "id": "g3-exam-listen-v1-2026-10-22",
+      "title": "考试听力 · 入门第1组",
+      "grade": "三年级",
+      "date": "2026-10-22",
+      "tags": [
+        "考试听力",
+        "听选",
+        "应答"
+      ],
+      "note": "先听两遍再对答案。题型向真卷，人物非课本。",
+      "items": [
+        {
+          "section": "听选关键词",
+          "promptZh": "第一题",
+          "text": "Good afternoon.",
+          "answer": "正确答案：afternoon（下午好，不是 morning）"
+        },
+        {
+          "section": "听选关键词",
+          "promptZh": "第二题",
+          "text": "My name is Lucy.",
+          "answer": "正确答案：Lucy"
+        },
+        {
+          "section": "听选关键词",
+          "promptZh": "第三题",
+          "text": "I have a blue bag.",
+          "answer": "正确答案：blue"
+        },
+        {
+          "section": "听选关键词",
+          "promptZh": "第四题",
+          "text": "He's my friend.",
+          "answer": "正确答案：friend"
+        },
+        {
+          "section": "听选应答",
+          "promptZh": "第一题",
+          "text": "How are you?",
+          "answer": "应答：I'm fine, thank you."
+        },
+        {
+          "section": "听选应答",
+          "promptZh": "第二题",
+          "text": "Nice to meet you.",
+          "answer": "应答：Nice to meet you too."
+        },
+        {
+          "section": "听选应答",
+          "promptZh": "第三题",
+          "text": "What class are you in?",
+          "answer": "应答：I'm in Class One."
+        },
+        {
+          "section": "听选应答",
+          "promptZh": "第四题",
+          "text": "Goodbye.",
+          "answer": "应答：Goodbye."
+        },
+        {
+          "section": "听辨对错",
+          "promptZh": "第一题",
+          "text": "It's a cat.",
+          "answer": "判断：对（是一只猫）"
+        },
+        {
+          "section": "听辨对错",
+          "promptZh": "第二题",
+          "text": "It's a dog.",
+          "answer": "判断：听成 cat 就算错；本句是 dog"
+        },
+        {
+          "section": "听辨对错",
+          "promptZh": "第三题",
+          "text": "I am nine.",
+          "answer": "判断：对（九岁）"
+        }
+      ],
+      "hub": "exam"
+    },
+    {
+      "id": "g3-ear-daily-v1-2026-10-22",
+      "title": "日常磨耳朵 · 入门第1组",
+      "grade": "三年级",
+      "date": "2026-10-22",
+      "tags": [
+        "磨耳朵",
+        "日常",
+        "Starters向"
+      ],
+      "note": "只听也行；打开答案看中文意思。不仿课本。",
+      "items": [
+        {
+          "section": "见面打招呼",
+          "promptZh": "第一题",
+          "text": "Hello.",
+          "answer": "你好。"
+        },
+        {
+          "section": "见面打招呼",
+          "promptZh": "第二题",
+          "text": "Good morning.",
+          "answer": "早上好。"
+        },
+        {
+          "section": "见面打招呼",
+          "promptZh": "第三题",
+          "text": "Good afternoon.",
+          "answer": "下午好。"
+        },
+        {
+          "section": "见面打招呼",
+          "promptZh": "第四题",
+          "text": "Goodbye.",
+          "answer": "再见。"
+        },
+        {
+          "section": "介绍自己",
+          "promptZh": "第一题",
+          "text": "My name is Tom.",
+          "answer": "我叫汤姆。"
+        },
+        {
+          "section": "介绍自己",
+          "promptZh": "第二题",
+          "text": "I'm eight.",
+          "answer": "我八岁。"
+        },
+        {
+          "section": "介绍自己",
+          "promptZh": "第三题",
+          "text": "Nice to meet you.",
+          "answer": "很高兴认识你。"
+        },
+        {
+          "section": "日常小句",
+          "promptZh": "第一题",
+          "text": "I have a red bag.",
+          "answer": "我有一个红色的包。"
+        },
+        {
+          "section": "日常小句",
+          "promptZh": "第二题",
+          "text": "This is my cat.",
+          "answer": "这是我的猫。"
+        },
+        {
+          "section": "日常小句",
+          "promptZh": "第三题",
+          "text": "I like apples.",
+          "answer": "我喜欢苹果。"
+        },
+        {
+          "section": "日常小句",
+          "promptZh": "第四题",
+          "text": "Where is my book?",
+          "answer": "我的书在哪里？"
+        },
+        {
+          "section": "日常小句",
+          "promptZh": "第五题",
+          "text": "See you tomorrow.",
+          "answer": "明天见。"
+        }
+      ],
+      "hub": "ear"
+    },
     {
       "id": "g3-yilin-u1-hello-2026-10-21",
       "title": "译林三上 · Unit1 Hello 听写",
@@ -129,7 +297,8 @@
           "text": "D. d.",
           "answer": "Dd"
         }
-      ]
+      ],
+      "hub": "dictation"
     },
     {
       "id": "g3-family-ing-2026-10-08",
@@ -215,7 +384,24 @@
           "text": "dance. dancing.",
           "answer": "dance → dancing"
         }
-      ]
+      ],
+      "hub": "dictation"
+    }
+  ],
+  "hubs": [
+    {
+      "id": "ear",
+      "title": "日常磨耳朵",
+      "subtitle": "生活场景听力，不仿课本",
+      "desc": "权威材料取向：剑桥 Starters 等。听懂意思、熟悉语感，词汇控制在小学三年级第一年水平。",
+      "accent": "warm"
+    },
+    {
+      "id": "exam",
+      "title": "考试听力",
+      "subtitle": "江苏真卷题型专项",
+      "desc": "听选、排序、判断、应答。材料来自真卷/正式检测，不做课文换皮。",
+      "accent": "teal"
     }
   ]
 }
