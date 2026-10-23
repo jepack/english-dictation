@@ -1,0 +1,26 @@
+# 公园遇见
+Mia: Hello!|米娅：你好！
+Leo: Hi, Mia!|里奥：嗨，米娅！
+Mia: Good morning.|米娅：早上好。
+Leo: Good morning.|里奥：早上好。
+
+# 聊一聊
+Mia: How are you?|米娅：你好吗？
+Leo: I'm fine, thank you.|里奥：我很好，谢谢。
+Mia: What's your name?|米娅：你叫什么名字？
+Leo: My name is Leo.|里奥：我叫里奥。
+Mia: Nice to meet you.|米娅：很高兴认识你。
+Leo: Nice to meet you too.|里奥：我也很高兴认识你。
+
+# 一起玩
+Mia: I like apples.|米娅：我喜欢苹果。
+Leo: I like cats.|里奥：我喜欢猫。
+Mia: This is my red bag.|米娅：这是我的红色包。
+Leo: Where is my book?|里奥：我的书在哪里？
+Mia: Here you are.|米娅：给你。
+Leo: Thank you!|里奥：谢谢你！
+
+# 再见
+Mia: See you tomorrow.|米娅：明天见。
+Leo: Goodbye, Mia!|里奥：再见，米娅！
+Mia: Bye, Leo!|米娅：拜拜，里奥！

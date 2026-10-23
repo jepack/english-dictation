@@ -56,15 +56,25 @@ def parse_lines(text: str, default_section: str) -> list[dict]:
             speak = answer = line
         if not speak:
             continue
+        speaker = ""
+        # 对话行：Mia: Hello!  → speaker + text
+        m = re.match(r"^([A-Za-z][A-Za-z0-9_-]{0,20})\s*:\s*(.+)$", speak)
+        if m:
+            speaker = m.group(1)
+            speak = m.group(2).strip()
         idx_in_section += 1
-        items.append(
-            {
-                "section": section,
-                "promptZh": prompt_zh(idx_in_section),
-                "text": speak,
-                "answer": answer or speak,
-            }
-        )
+        row = {
+            "section": section,
+            "promptZh": prompt_zh(idx_in_section),
+            "text": speak,
+            "answer": answer or speak,
+        }
+        if speaker:
+            row["speaker"] = speaker
+        # 答案像中文时，顺带写入 meaningZh（磨耳朵对照）
+        if answer and answer != speak and re.search(r"[\u4e00-\u9fff]", answer):
+            row["meaningZh"] = answer
+        items.append(row)
     return items
 
 
@@ -111,6 +121,11 @@ def main() -> None:
     p.add_argument("--date", default=today)
     p.add_argument("--tags", default="", help="逗号分隔，如 句子,动词ing")
     p.add_argument("--note", default="写完点下一个")
+    p.add_argument(
+        "--hub",
+        default="",
+        help='分类：ear / exam / dictation（默认不写字段）',
+    )
     p.add_argument("--section", default="句子", help="--from-lines 默认段落名")
     p.add_argument("--from-lines", type=Path, help="文本文件：每行一句，# 换段，| 分隔答案")
     p.add_argument("--items-json", help="items JSON 数组字符串")
@@ -148,6 +163,22 @@ def main() -> None:
         "note": args.note,
         "items": items,
     }
+    if args.hub.strip():
+        hub = args.hub.strip()
+        if hub not in {"ear", "exam", "dictation"}:
+            raise SystemExit("--hub 只能是 ear / exam / dictation")
+        entry["hub"] = hub
+        if hub == "ear":
+            for it in items:
+                if not it.get("meaningZh") and it.get("answer") and re.search(
+                    r"[\u4e00-\u9fff]", it["answer"]
+                ):
+                    it["meaningZh"] = it["answer"]
+                # 磨耳朵不播「第N题」
+                if it.get("speaker"):
+                    it["promptZh"] = it["speaker"]
+                elif it.get("section"):
+                    it["promptZh"] = it["section"]
 
     if args.dry_run:
         print(json.dumps(entry, ensure_ascii=False, indent=2))

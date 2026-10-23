@@ -109,13 +109,19 @@ def collect_phrases() -> list[tuple[str, str]]:
         data = json.loads(DATA.read_text(encoding="utf-8"))
         for dictation in reversed(data.get("dictations", [])):
             sections: set[str] = set()
+            hub = (dictation.get("hub") or "dictation").strip()
             for item in dictation.get("items", []):
                 section = (item.get("section") or "听写").strip()
                 sections.add(section)
                 add("en", item.get("text") or "")
                 add("zh", item.get("promptZh") or "")
+                # 磨耳朵：中文意思可点「听中文」
+                if hub == "ear":
+                    add("zh", item.get("meaningZh") or item.get("answer") or "")
             for section in sorted(sections):
                 add("zh", f"{section}开始。")
+            if hub == "ear":
+                add("zh", "听完了。做得很好！")
 
     for lang, text in FIXED:
         add(lang, text)

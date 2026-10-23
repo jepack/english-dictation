@@ -8,6 +8,7 @@
     view: "home", // home | hub | dictation | play | review
     currentHub: null,
     currentId: null,
+    playKind: "dictation", // ear | exam | dictation
     items: [],
     index: -1,
     running: false,
@@ -15,6 +16,8 @@
     autoTimer: null,
     reviewWrongOnly: false,
     currentAudio: null,
+    earRevealEn: false,
+    earRevealZh: false,
   };
 
   const HUB_META = {
@@ -27,6 +30,20 @@
   function mode() {
     const el = document.querySelector('input[name="mode"]:checked');
     return el ? el.value : "manual";
+  }
+
+  function earMode() {
+    const el = document.querySelector('input[name="earMode"]:checked');
+    return el ? el.value : "tap";
+  }
+
+  function isEarPlay() {
+    return state.playKind === "ear";
+  }
+
+  function meaningOf(item) {
+    if (!item) return "";
+    return String(item.meaningZh || item.answer || "").trim();
   }
 
   function writeSecondsFor(text) {
@@ -293,18 +310,62 @@
       .replace(/"/g, "&quot;");
   }
 
+  function setEarButtons({ playing = false, afterHear = false } = {}) {
+    $("btnStart").disabled = playing;
+    $("btnStop").disabled = !playing && !state.running;
+    $("btnReplay").disabled = !afterHear;
+    $("btnNext").disabled = !afterHear;
+    $("btnShowEn").disabled = !afterHear;
+    $("btnShowZh").disabled = !afterHear;
+    $("btnHearZh").disabled = !afterHear || !meaningOf(state.items[state.index]);
+    $("btnWrong").disabled = true;
+    $("btnOk").disabled = true;
+  }
+
   function showItem(reveal = false) {
     const i = state.index;
     const item = state.items[i];
     if (!item) return;
-    const label = item.answer || item.text;
-    const section = item.section || "听写";
+    const section = item.section || (isEarPlay() ? "磨耳朵" : "听写");
     $("badge").textContent = `${section} · ${i + 1}/${state.items.length}`;
     $("count").textContent = `${i + 1} / ${state.items.length}`;
     $("bar").style.width = `${((i + 1) / state.items.length) * 100}%`;
+
+    if (isEarPlay()) {
+      const en = state.earRevealEn || reveal;
+      const zh = state.earRevealZh;
+      const sp = $("speaker");
+      if (item.speaker) {
+        sp.hidden = false;
+        sp.textContent = item.speaker;
+        sp.dataset.who = item.speaker;
+      } else {
+        sp.hidden = true;
+        sp.textContent = "";
+        delete sp.dataset.who;
+      }
+      $("display").textContent = en ? item.text : "（先听，再点看英文）";
+      $("display").classList.toggle("blur", false);
+      $("display").classList.toggle("is-placeholder", !en);
+      const meaningEl = $("meaning");
+      meaningEl.hidden = false;
+      if (zh) {
+        meaningEl.textContent = meaningOf(item) || "（暂无中文）";
+        meaningEl.classList.remove("is-placeholder");
+      } else {
+        meaningEl.textContent = "点「中文意思」对照含义";
+        meaningEl.classList.add("is-placeholder");
+      }
+      return;
+    }
+
+    $("speaker").hidden = true;
+    const label = item.answer || item.text;
     $("display").textContent = label;
     const show = reveal || $("showText").checked;
     $("display").classList.toggle("blur", !show);
+    $("display").classList.remove("is-placeholder");
+    $("meaning").hidden = true;
   }
 
   function fillAnswers() {
@@ -312,13 +373,69 @@
     ol.innerHTML = "";
     state.items.forEach((item) => {
       const li = document.createElement("li");
-      li.textContent = item.answer || item.text;
+      if (isEarPlay()) {
+        const zh = meaningOf(item);
+        const who = item.speaker ? `<strong>${escapeHtml(item.speaker)}: </strong>` : "";
+        li.innerHTML = `${who}<span class="ans-en">${escapeHtml(item.text)}</span>${
+          zh ? ` <span class="ans-zh">— ${escapeHtml(zh)}</span>` : ""
+        }`;
+      } else {
+        li.textContent = item.answer || item.text;
+      }
       ol.appendChild(li);
     });
   }
 
-  async function playCurrent() {
-    if (state.index < 0 || state.index >= state.items.length) return;
+  async function playCurrentEar() {
+    const item = state.items[state.index];
+    state.waitingNext = false;
+    state.earRevealEn = false;
+    state.earRevealZh = false;
+    setEarButtons({ playing: true });
+    showItem();
+    $("prompt").textContent = item.speaker
+      ? `仔细听——${item.speaker} 在说…`
+      : "仔细听英文…";
+
+    // 对话：先点名角色，再听句子，更有交流感
+    if (item.speaker) {
+      await speak(item.speaker, "en-US");
+      await waitMs(220);
+    }
+    await speak(item.text, "en-US");
+    if (!state.running) return;
+
+    if (earMode() === "link") {
+      state.earRevealEn = true;
+      state.earRevealZh = true;
+      showItem();
+      $("prompt").textContent = "对照中文意思…";
+      await waitMs(450);
+      const zh = meaningOf(item);
+      if (zh) await speak(zh, "zh-CN");
+      if (!state.running) return;
+      await waitMs(700);
+      setEarButtons({ afterHear: true });
+      state.waitingNext = true;
+      $("btnStop").disabled = false;
+      $("btnStart").disabled = true;
+      clearAuto();
+      state.autoTimer = setTimeout(() => {
+        if (state.running) goNext();
+      }, 900);
+      $("hint").textContent = "连听模式：英→中后自动下一句；也可提前点「下一句」。";
+      return;
+    }
+
+    setEarButtons({ afterHear: true });
+    $("btnStop").disabled = false;
+    $("btnStart").disabled = true;
+    state.waitingNext = true;
+    $("prompt").textContent = "点「看英文」或点中间区域；点「中文意思」对照含义";
+    $("hint").textContent = "一句一句点：听 → 对照英文 → 对照中文 → 下一句。也可「听中文」。";
+  }
+
+  async function playCurrentDictation() {
     const item = state.items[state.index];
     state.waitingNext = false;
     $("btnNext").disabled = true;
@@ -367,14 +484,54 @@
     }
   }
 
+  async function playCurrent() {
+    if (state.index < 0 || state.index >= state.items.length) return;
+    if (isEarPlay()) await playCurrentEar();
+    else await playCurrentDictation();
+  }
+
   async function startPlay() {
     stopSpeech();
     clearAuto();
     state.running = true;
     state.index = 0;
-    $("btnStart").textContent = "重新开始";
+    state.earRevealEn = false;
+    state.earRevealZh = false;
+    $("btnStart").textContent = isEarPlay() ? "重新开始" : "重新开始";
     $("hint").textContent = "播放中…调大音量。";
     await playCurrent();
+  }
+
+  async function finishPlay() {
+    state.running = false;
+    state.waitingNext = false;
+    $("btnNext").disabled = true;
+    $("btnReplay").disabled = true;
+    $("btnStop").disabled = true;
+    $("btnStart").disabled = false;
+    $("btnWrong").disabled = true;
+    $("btnOk").disabled = true;
+    if (isEarPlay()) {
+      $("btnShowEn").disabled = true;
+      $("btnShowZh").disabled = true;
+      $("btnHearZh").disabled = true;
+      $("prompt").textContent = "本组听完啦。可打开下方英中对照再扫一眼。";
+      $("display").textContent = "Nice listening!";
+      $("display").classList.remove("blur", "is-placeholder");
+      $("meaning").hidden = false;
+      $("meaning").textContent = "做得好";
+      $("meaning").classList.remove("is-placeholder");
+      $("badge").textContent = "完成";
+      $("hint").textContent = "想再练就点「重新开始」，或换一组场景。";
+      await speak("听完了。做得很好！", "zh-CN");
+    } else {
+      $("prompt").textContent = "听写结束！可打开下方答案核对。";
+      $("display").textContent = "All done!";
+      $("display").classList.remove("blur");
+      $("badge").textContent = "完成";
+      $("hint").textContent = "全部完成。错题可在「复习」里再练。";
+      await speak("听写结束。做得很好！", "zh-CN");
+    }
   }
 
   async function goNext() {
@@ -382,25 +539,18 @@
     clearAuto();
     stopSpeech();
     if (state.index >= state.items.length - 1) {
-      state.running = false;
-      state.waitingNext = false;
-      $("prompt").textContent = "听写结束！可打开下方答案核对。";
-      $("display").textContent = "All done!";
-      $("display").classList.remove("blur");
-      $("badge").textContent = "完成";
-      $("btnNext").disabled = true;
-      $("btnReplay").disabled = true;
-      $("btnStop").disabled = true;
-      $("btnStart").disabled = false;
-      $("btnWrong").disabled = true;
-      $("btnOk").disabled = true;
-      $("hint").textContent = "全部完成。错题可在「复习」里再练。";
-      await speak("听写结束。做得很好！", "zh-CN");
+      await finishPlay();
       return;
     }
     state.index += 1;
-    await speak("下一个。", "zh-CN");
-    await waitMs(200);
+    state.earRevealEn = false;
+    state.earRevealZh = false;
+    if (!isEarPlay()) {
+      await speak("下一个。", "zh-CN");
+      await waitMs(200);
+    } else {
+      await waitMs(180);
+    }
     await playCurrent();
   }
 
@@ -408,6 +558,20 @@
     if (state.index < 0 || !state.running) return;
     clearAuto();
     stopSpeech();
+    if (isEarPlay()) {
+      // 只重听英文，保留已揭开的对照
+      $("prompt").textContent = "再听一遍英文…";
+      setEarButtons({ playing: true });
+      $("btnStop").disabled = false;
+      await speak(state.items[state.index].text, "en-US");
+      if (!state.running) return;
+      setEarButtons({ afterHear: true });
+      $("btnStop").disabled = false;
+      $("btnStart").disabled = true;
+      state.waitingNext = true;
+      $("prompt").textContent = "继续点对照，或下一句";
+      return;
+    }
     await playCurrent();
   }
 
@@ -423,19 +587,46 @@
     $("btnStart").disabled = false;
     $("btnWrong").disabled = true;
     $("btnOk").disabled = true;
+    $("btnShowEn").disabled = true;
+    $("btnShowZh").disabled = true;
+    $("btnHearZh").disabled = true;
   }
 
-  function openPlay(id, items, title) {
+  function applyPlayChrome() {
+    const ear = isEarPlay();
+    document.body.classList.toggle("mode-ear", ear);
+    $("play-options-dictation").hidden = ear;
+    $("play-options-ear").hidden = !ear;
+    $("controls-ear").hidden = !ear;
+    $("controls-mark").hidden = ear;
+    $("meaning").hidden = !ear;
+    $("answersSummary").textContent = ear
+      ? "英中对照（整组速览）"
+      : "答案（写完再打开核对）";
+    $("modeHint").textContent = ear
+      ? earMode() === "link"
+        ? "英→中连听"
+        : "一句一句点"
+      : mode() === "manual"
+        ? "手动点控"
+        : "按长度自动等";
+  }
+
+  function openPlay(id, items, title, playKind) {
     state.currentId = id;
     state.items = items;
     state.index = -1;
     state.running = false;
+    state.playKind = playKind || "dictation";
+    state.earRevealEn = false;
+    state.earRevealZh = false;
     clearAuto();
     stopSpeech();
     setView("play");
+    applyPlayChrome();
     const back = $("play-back");
-    if (state.currentHub && (state.currentHub === "ear" || state.currentHub === "exam")) {
-      back.href = `#/hub/${encodeURIComponent(state.currentHub)}`;
+    if (state.playKind === "ear" || state.playKind === "exam") {
+      back.href = `#/hub/${encodeURIComponent(state.playKind)}`;
       back.textContent = "← 返回分类";
     } else if (id === "review-wrong" || id === "review-all") {
       back.href = "#/review";
@@ -446,19 +637,41 @@
     }
     $("play-title").textContent = title;
     $("badge").textContent = "准备就绪";
-    $("prompt").textContent = "点「开始听写」——你控制什么时候开始";
-    $("display").textContent = "Ready?";
-    $("display").classList.remove("blur");
+    if (isEarPlay()) {
+      $("prompt").textContent = "点「开始磨耳朵」——先听，再对照中文意思";
+      $("display").textContent = "Listen first";
+      $("display").classList.remove("blur", "is-placeholder");
+      $("meaning").hidden = false;
+      $("meaning").textContent = "听懂意思，不急着写";
+      $("meaning").classList.add("is-placeholder");
+      $("speaker").hidden = true;
+      $("btnStart").textContent = "开始磨耳朵";
+      $("btnReplay").textContent = "再听英文";
+      $("btnNext").textContent = "下一句";
+      $("hint").textContent =
+        "磨耳朵：听英文 → 点看英文 / 中文意思 → 可听中文。连听模式会自动英→中→下一句。";
+    } else {
+      $("prompt").textContent = "点「开始听写」——你控制什么时候开始";
+      $("display").textContent = "Ready?";
+      $("display").classList.remove("blur", "is-placeholder");
+      $("meaning").hidden = true;
+      $("speaker").hidden = true;
+      $("btnStart").textContent = "开始听写";
+      $("btnReplay").textContent = "再读一遍";
+      $("btnNext").textContent = "下一个";
+      $("hint").textContent = "飞书 / Safari / Chrome 均可；用音频播放，调大音量后开始。";
+    }
     $("count").textContent = `0 / ${items.length}`;
     $("bar").style.width = "0%";
-    $("btnStart").textContent = "开始听写";
     $("btnStart").disabled = false;
     $("btnNext").disabled = true;
     $("btnReplay").disabled = true;
     $("btnStop").disabled = true;
     $("btnWrong").disabled = true;
     $("btnOk").disabled = true;
-    $("hint").textContent = "飞书 / Safari / Chrome 均可；用音频播放，调大音量后开始。";
+    $("btnShowEn").disabled = true;
+    $("btnShowZh").disabled = true;
+    $("btnHearZh").disabled = true;
     fillAnswers();
     $("answersBox").open = false;
   }
@@ -504,10 +717,17 @@
       if (!state.currentHub) {
         state.currentHub = d.hub || "dictation";
       }
+      const kind = d.hub === "ear" || d.hub === "exam" ? d.hub : "dictation";
       openPlay(
         d.id,
-        d.items.map((it, idx) => ({ ...it, _dictationId: d.id, _itemIndex: idx })),
-        d.title
+        d.items.map((it, idx) => ({
+          ...it,
+          meaningZh: it.meaningZh || (kind === "ear" ? it.answer : undefined),
+          _dictationId: d.id,
+          _itemIndex: idx,
+        })),
+        d.title,
+        kind
       );
       return;
     }
@@ -528,7 +748,8 @@
       openPlay(
         wrongOnly ? "review-wrong" : "review-all",
         items,
-        wrongOnly ? "错题复习" : "全部复习"
+        wrongOnly ? "错题复习" : "全部复习",
+        "dictation"
       );
       return;
     }
@@ -550,6 +771,51 @@
     $("btnReplay").addEventListener("click", replay);
     $("btnStop").addEventListener("click", stopAll);
 
+    $("btnShowEn").addEventListener("click", () => {
+      if (!isEarPlay() || state.index < 0) return;
+      state.earRevealEn = true;
+      showItem();
+      $("prompt").textContent = "对照英文；再点「中文意思」映射含义";
+    });
+    $("btnShowZh").addEventListener("click", () => {
+      if (!isEarPlay() || state.index < 0) return;
+      state.earRevealZh = true;
+      if (!state.earRevealEn) state.earRevealEn = true;
+      showItem();
+      $("prompt").textContent = "英中已对照。可「听中文」或下一句";
+    });
+    $("btnHearZh").addEventListener("click", async () => {
+      if (!isEarPlay() || state.index < 0) return;
+      const zh = meaningOf(state.items[state.index]);
+      if (!zh) return;
+      state.earRevealZh = true;
+      state.earRevealEn = true;
+      showItem();
+      clearAuto();
+      stopSpeech();
+      $("prompt").textContent = "听中文意思…";
+      await speak(zh, "zh-CN");
+      if (state.running) {
+        $("prompt").textContent = "可以再听英文，或下一句";
+        state.waitingNext = true;
+      }
+    });
+    $("stage").addEventListener("click", () => {
+      if (!isEarPlay() || !state.running || state.index < 0) return;
+      if ($("btnShowEn").disabled) return;
+      if (!state.earRevealEn) {
+        state.earRevealEn = true;
+        showItem();
+        $("prompt").textContent = "已显示英文；再点可看中文意思";
+        return;
+      }
+      if (!state.earRevealZh) {
+        state.earRevealZh = true;
+        showItem();
+        $("prompt").textContent = "英中已对照。可「听中文」或下一句";
+      }
+    });
+
     $("btnWrong").addEventListener("click", () => {
       const item = state.items[state.index];
       if (!item || item._dictationId == null) return;
@@ -569,6 +835,11 @@
     document.querySelectorAll('input[name="mode"]').forEach((r) => {
       r.addEventListener("change", () => {
         $("modeHint").textContent = mode() === "manual" ? "手动点控" : "按长度自动等";
+      });
+    });
+    document.querySelectorAll('input[name="earMode"]').forEach((r) => {
+      r.addEventListener("change", () => {
+        $("modeHint").textContent = earMode() === "link" ? "英→中连听" : "一句一句点";
       });
     });
 

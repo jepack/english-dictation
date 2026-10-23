@@ -4,6 +4,272 @@
   "siteSubtitle": "日常磨耳朵 · 考试听力 · 手机点控",
   "dictations": [
     {
+      "id": "g3-ear-chant-hello-2026-10-23",
+      "title": "日常磨耳朵 · 打招呼歌谣",
+      "grade": "三年级",
+      "date": "2026-10-23",
+      "tags": [
+        "磨耳朵",
+        "歌谣",
+        "跟唱"
+      ],
+      "note": "节奏重复、适合跟唱（TTS 朗诵版，不是编曲）。可连听英→中。",
+      "items": [
+        {
+          "section": "早上好歌谣",
+          "promptZh": "早上好歌谣",
+          "text": "Good morning, good morning.",
+          "answer": "早上好，早上好。",
+          "meaningZh": "早上好，早上好。"
+        },
+        {
+          "section": "早上好歌谣",
+          "promptZh": "早上好歌谣",
+          "text": "Good morning to you.",
+          "answer": "祝你早上好。",
+          "meaningZh": "祝你早上好。"
+        },
+        {
+          "section": "早上好歌谣",
+          "promptZh": "早上好歌谣",
+          "text": "Hello, hello, how are you?",
+          "answer": "你好，你好，你好吗？",
+          "meaningZh": "你好，你好，你好吗？"
+        },
+        {
+          "section": "早上好歌谣",
+          "promptZh": "早上好歌谣",
+          "text": "I'm fine, thank you. How are you?",
+          "answer": "我很好，谢谢。你好吗？",
+          "meaningZh": "我很好，谢谢。你好吗？"
+        },
+        {
+          "section": "认识你歌谣",
+          "promptZh": "认识你歌谣",
+          "text": "What's your name? What's your name?",
+          "answer": "你叫什么名字？你叫什么名字？",
+          "meaningZh": "你叫什么名字？你叫什么名字？"
+        },
+        {
+          "section": "认识你歌谣",
+          "promptZh": "认识你歌谣",
+          "text": "My name is Mia. My name is Mia.",
+          "answer": "我叫米娅。我叫米娅。",
+          "meaningZh": "我叫米娅。我叫米娅。"
+        },
+        {
+          "section": "认识你歌谣",
+          "promptZh": "认识你歌谣",
+          "text": "Nice to meet you. Nice to meet you.",
+          "answer": "很高兴认识你。很高兴认识你。",
+          "meaningZh": "很高兴认识你。很高兴认识你。"
+        },
+        {
+          "section": "认识你歌谣",
+          "promptZh": "认识你歌谣",
+          "text": "Nice to meet you too.",
+          "answer": "我也是，很高兴认识你。",
+          "meaningZh": "我也是，很高兴认识你。"
+        },
+        {
+          "section": "再见歌谣",
+          "promptZh": "再见歌谣",
+          "text": "Goodbye, goodbye.",
+          "answer": "再见，再见。",
+          "meaningZh": "再见，再见。"
+        },
+        {
+          "section": "再见歌谣",
+          "promptZh": "再见歌谣",
+          "text": "See you tomorrow.",
+          "answer": "明天见。",
+          "meaningZh": "明天见。"
+        },
+        {
+          "section": "再见歌谣",
+          "promptZh": "再见歌谣",
+          "text": "Bye-bye, bye-bye.",
+          "answer": "拜拜，拜拜。",
+          "meaningZh": "拜拜，拜拜。"
+        },
+        {
+          "section": "再见歌谣",
+          "promptZh": "再见歌谣",
+          "text": "See you! See you!",
+          "answer": "再见！再见！",
+          "meaningZh": "再见！再见！"
+        }
+      ],
+      "hub": "ear"
+    },
+    {
+      "id": "g3-ear-story-park-2026-10-23",
+      "title": "日常磨耳朵 · 公园对话故事",
+      "grade": "三年级",
+      "date": "2026-10-23",
+      "tags": [
+        "磨耳朵",
+        "对话",
+        "故事"
+      ],
+      "note": "Mia 和 Leo 在公园打招呼、聊天、再见。一句一句听，对照中文。",
+      "items": [
+        {
+          "section": "公园遇见",
+          "promptZh": "Mia",
+          "text": "Hello!",
+          "answer": "米娅：你好！",
+          "speaker": "Mia",
+          "meaningZh": "米娅：你好！"
+        },
+        {
+          "section": "公园遇见",
+          "promptZh": "Leo",
+          "text": "Hi, Mia!",
+          "answer": "里奥：嗨，米娅！",
+          "speaker": "Leo",
+          "meaningZh": "里奥：嗨，米娅！"
+        },
+        {
+          "section": "公园遇见",
+          "promptZh": "Mia",
+          "text": "Good morning.",
+          "answer": "米娅：早上好。",
+          "speaker": "Mia",
+          "meaningZh": "米娅：早上好。"
+        },
+        {
+          "section": "公园遇见",
+          "promptZh": "Leo",
+          "text": "Good morning.",
+          "answer": "里奥：早上好。",
+          "speaker": "Leo",
+          "meaningZh": "里奥：早上好。"
+        },
+        {
+          "section": "聊一聊",
+          "promptZh": "Mia",
+          "text": "How are you?",
+          "answer": "米娅：你好吗？",
+          "speaker": "Mia",
+          "meaningZh": "米娅：你好吗？"
+        },
+        {
+          "section": "聊一聊",
+          "promptZh": "Leo",
+          "text": "I'm fine, thank you.",
+          "answer": "里奥：我很好，谢谢。",
+          "speaker": "Leo",
+          "meaningZh": "里奥：我很好，谢谢。"
+        },
+        {
+          "section": "聊一聊",
+          "promptZh": "Mia",
+          "text": "What's your name?",
+          "answer": "米娅：你叫什么名字？",
+          "speaker": "Mia",
+          "meaningZh": "米娅：你叫什么名字？"
+        },
+        {
+          "section": "聊一聊",
+          "promptZh": "Leo",
+          "text": "My name is Leo.",
+          "answer": "里奥：我叫里奥。",
+          "speaker": "Leo",
+          "meaningZh": "里奥：我叫里奥。"
+        },
+        {
+          "section": "聊一聊",
+          "promptZh": "Mia",
+          "text": "Nice to meet you.",
+          "answer": "米娅：很高兴认识你。",
+          "speaker": "Mia",
+          "meaningZh": "米娅：很高兴认识你。"
+        },
+        {
+          "section": "聊一聊",
+          "promptZh": "Leo",
+          "text": "Nice to meet you too.",
+          "answer": "里奥：我也很高兴认识你。",
+          "speaker": "Leo",
+          "meaningZh": "里奥：我也很高兴认识你。"
+        },
+        {
+          "section": "一起玩",
+          "promptZh": "Mia",
+          "text": "I like apples.",
+          "answer": "米娅：我喜欢苹果。",
+          "speaker": "Mia",
+          "meaningZh": "米娅：我喜欢苹果。"
+        },
+        {
+          "section": "一起玩",
+          "promptZh": "Leo",
+          "text": "I like cats.",
+          "answer": "里奥：我喜欢猫。",
+          "speaker": "Leo",
+          "meaningZh": "里奥：我喜欢猫。"
+        },
+        {
+          "section": "一起玩",
+          "promptZh": "Mia",
+          "text": "This is my red bag.",
+          "answer": "米娅：这是我的红色包。",
+          "speaker": "Mia",
+          "meaningZh": "米娅：这是我的红色包。"
+        },
+        {
+          "section": "一起玩",
+          "promptZh": "Leo",
+          "text": "Where is my book?",
+          "answer": "里奥：我的书在哪里？",
+          "speaker": "Leo",
+          "meaningZh": "里奥：我的书在哪里？"
+        },
+        {
+          "section": "一起玩",
+          "promptZh": "Mia",
+          "text": "Here you are.",
+          "answer": "米娅：给你。",
+          "speaker": "Mia",
+          "meaningZh": "米娅：给你。"
+        },
+        {
+          "section": "一起玩",
+          "promptZh": "Leo",
+          "text": "Thank you!",
+          "answer": "里奥：谢谢你！",
+          "speaker": "Leo",
+          "meaningZh": "里奥：谢谢你！"
+        },
+        {
+          "section": "再见",
+          "promptZh": "Mia",
+          "text": "See you tomorrow.",
+          "answer": "米娅：明天见。",
+          "speaker": "Mia",
+          "meaningZh": "米娅：明天见。"
+        },
+        {
+          "section": "再见",
+          "promptZh": "Leo",
+          "text": "Goodbye, Mia!",
+          "answer": "里奥：再见，米娅！",
+          "speaker": "Leo",
+          "meaningZh": "里奥：再见，米娅！"
+        },
+        {
+          "section": "再见",
+          "promptZh": "Mia",
+          "text": "Bye, Leo!",
+          "answer": "米娅：拜拜，里奥！",
+          "speaker": "Mia",
+          "meaningZh": "米娅：拜拜，里奥！"
+        }
+      ],
+      "hub": "ear"
+    },
+    {
       "id": "g3-exam-listen-v1-2026-10-22",
       "title": "考试听力 · 入门第1组",
       "grade": "三年级",
@@ -94,79 +360,91 @@
         "日常",
         "Starters向"
       ],
-      "note": "只听也行；打开答案看中文意思。不仿课本。",
+      "note": "先听英文，再点看英文/中文意思；可听中文。不仿课本。",
       "items": [
         {
           "section": "见面打招呼",
-          "promptZh": "第一题",
+          "promptZh": "见面打招呼",
           "text": "Hello.",
-          "answer": "你好。"
+          "answer": "你好。",
+          "meaningZh": "你好。"
         },
         {
           "section": "见面打招呼",
-          "promptZh": "第二题",
+          "promptZh": "见面打招呼",
           "text": "Good morning.",
-          "answer": "早上好。"
+          "answer": "早上好。",
+          "meaningZh": "早上好。"
         },
         {
           "section": "见面打招呼",
-          "promptZh": "第三题",
+          "promptZh": "见面打招呼",
           "text": "Good afternoon.",
-          "answer": "下午好。"
+          "answer": "下午好。",
+          "meaningZh": "下午好。"
         },
         {
           "section": "见面打招呼",
-          "promptZh": "第四题",
+          "promptZh": "见面打招呼",
           "text": "Goodbye.",
-          "answer": "再见。"
+          "answer": "再见。",
+          "meaningZh": "再见。"
         },
         {
           "section": "介绍自己",
-          "promptZh": "第一题",
+          "promptZh": "介绍自己",
           "text": "My name is Tom.",
-          "answer": "我叫汤姆。"
+          "answer": "我叫汤姆。",
+          "meaningZh": "我叫汤姆。"
         },
         {
           "section": "介绍自己",
-          "promptZh": "第二题",
+          "promptZh": "介绍自己",
           "text": "I'm eight.",
-          "answer": "我八岁。"
+          "answer": "我八岁。",
+          "meaningZh": "我八岁。"
         },
         {
           "section": "介绍自己",
-          "promptZh": "第三题",
+          "promptZh": "介绍自己",
           "text": "Nice to meet you.",
-          "answer": "很高兴认识你。"
+          "answer": "很高兴认识你。",
+          "meaningZh": "很高兴认识你。"
         },
         {
           "section": "日常小句",
-          "promptZh": "第一题",
+          "promptZh": "日常小句",
           "text": "I have a red bag.",
-          "answer": "我有一个红色的包。"
+          "answer": "我有一个红色的包。",
+          "meaningZh": "我有一个红色的包。"
         },
         {
           "section": "日常小句",
-          "promptZh": "第二题",
+          "promptZh": "日常小句",
           "text": "This is my cat.",
-          "answer": "这是我的猫。"
+          "answer": "这是我的猫。",
+          "meaningZh": "这是我的猫。"
         },
         {
           "section": "日常小句",
-          "promptZh": "第三题",
+          "promptZh": "日常小句",
           "text": "I like apples.",
-          "answer": "我喜欢苹果。"
+          "answer": "我喜欢苹果。",
+          "meaningZh": "我喜欢苹果。"
         },
         {
           "section": "日常小句",
-          "promptZh": "第四题",
+          "promptZh": "日常小句",
           "text": "Where is my book?",
-          "answer": "我的书在哪里？"
+          "answer": "我的书在哪里？",
+          "meaningZh": "我的书在哪里？"
         },
         {
           "section": "日常小句",
-          "promptZh": "第五题",
+          "promptZh": "日常小句",
           "text": "See you tomorrow.",
-          "answer": "明天见。"
+          "answer": "明天见。",
+          "meaningZh": "明天见。"
         }
       ],
       "hub": "ear"
@@ -393,7 +671,7 @@
       "id": "ear",
       "title": "日常磨耳朵",
       "subtitle": "生活场景听力，不仿课本",
-      "desc": "权威材料取向：剑桥 Starters 等。听懂意思、熟悉语感，词汇控制在小学三年级第一年水平。",
+      "desc": "听一句、对照中文意思。一句一句点，或英→中连听。",
       "accent": "warm"
     },
     {

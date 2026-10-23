@@ -53,7 +53,8 @@
       <h2 id="play-title" style="margin:0 0 8px;font-size:1.25rem;"></h2>
 
       <div class="panel">
-        <div class="row">
+        <!-- 听写选项 -->
+        <div class="row" id="play-options-dictation">
           <label class="chip">
             <input type="radio" name="mode" value="manual" checked />
             点一下下一个
@@ -68,10 +69,24 @@
           </label>
         </div>
 
-        <div class="stage" aria-live="polite">
+        <!-- 磨耳朵选项 -->
+        <div class="row" id="play-options-ear" hidden>
+          <label class="chip">
+            <input type="radio" name="earMode" value="tap" checked />
+            一句一句点
+          </label>
+          <label class="chip">
+            <input type="radio" name="earMode" value="link" />
+            英→中连听
+          </label>
+        </div>
+
+        <div class="stage stage-tap" id="stage" aria-live="polite">
           <div class="badge" id="badge">准备就绪</div>
-          <p class="prompt" id="prompt">点「开始听写」</p>
+          <p class="speaker" id="speaker" hidden></p>
+          <p class="prompt" id="prompt">点「开始」</p>
           <p class="big" id="display">Ready?</p>
+          <p class="meaning" id="meaning" hidden></p>
         </div>
 
         <div class="progress"><i id="bar"></i></div>
@@ -80,14 +95,21 @@
           <span id="modeHint">手动点控</span>
         </div>
 
-        <div class="controls">
+        <div class="controls" id="controls-main">
           <button class="btn btn-start" id="btnStart" type="button">开始听写</button>
           <button class="btn btn-next" id="btnNext" type="button" disabled>下一个</button>
           <button class="btn btn-replay" id="btnReplay" type="button" disabled>再读一遍</button>
           <button class="btn btn-stop" id="btnStop" type="button" disabled>停止</button>
         </div>
 
-        <div class="controls" style="grid-template-columns:1fr 1fr;margin-top:10px;">
+        <!-- 磨耳朵：对照中文 -->
+        <div class="controls controls-ear" id="controls-ear" hidden>
+          <button class="btn btn-replay" id="btnShowEn" type="button" disabled>看英文</button>
+          <button class="btn btn-next" id="btnShowZh" type="button" disabled>中文意思</button>
+          <button class="btn btn-start" id="btnHearZh" type="button" disabled>听中文</button>
+        </div>
+
+        <div class="controls" id="controls-mark" style="grid-template-columns:1fr 1fr;margin-top:10px;">
           <button class="btn btn-stop" id="btnWrong" type="button" disabled>不会 / 错了</button>
           <button class="btn btn-replay" id="btnOk" type="button" disabled>会了 / 对了</button>
         </div>
@@ -96,7 +118,7 @@
       </div>
 
       <details class="answers" id="answersBox">
-        <summary>答案（写完再打开核对）</summary>
+        <summary id="answersSummary">答案（写完再打开核对）</summary>
         <ol id="answerList"></ol>
       </details>
     </section>

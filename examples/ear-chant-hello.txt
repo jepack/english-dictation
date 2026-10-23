@@ -1,0 +1,17 @@
+# 早上好歌谣
+Good morning, good morning.|早上好，早上好。
+Good morning to you.|祝你早上好。
+Hello, hello, how are you?|你好，你好，你好吗？
+I'm fine, thank you. How are you?|我很好，谢谢。你好吗？
+
+# 认识你歌谣
+What's your name? What's your name?|你叫什么名字？你叫什么名字？
+My name is Mia. My name is Mia.|我叫米娅。我叫米娅。
+Nice to meet you. Nice to meet you.|很高兴认识你。很高兴认识你。
+Nice to meet you too.|我也是，很高兴认识你。
+
+# 再见歌谣
+Goodbye, goodbye.|再见，再见。
+See you tomorrow.|明天见。
+Bye-bye, bye-bye.|拜拜，拜拜。
+See you! See you!|再见！再见！
